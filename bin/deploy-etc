@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Deploy my configuration files into the home dir.
+
+set -e
+
+bin=`readlink -f $0`
+bin=`dirname ${bin}`
+bin=`cd ${bin} && pwd`
+
+etcdir=`cd ${bin}/../etc && pwd`
+
+makesafelink() {
+  # Three arguments:
+  # original (e.g., $HOME/.bashrc)
+  # backup (e.g., $HOME/.localbashrc) - where existing original backs up to.
+  # target (e.g., $etcdir/bashrc) - Where a symlink should target
+  #
+  # This creates a symlink from original -> target.
+  # If original already exists, moves it to backup.
+  # If backup already exists, gives up.
+  original=$1
+  backup=$2
+  target=$3
+  if [ ! -L $original ]; then
+    # original is not already a symlink
+    if [ ! -e $original ]; then
+      # original doesn't exist. Make the link.
+        echo "Setting $original as symlink -> $target"
+        ln -s $target $original
+    elif [ -f $original ]; then
+      if [ ! -e $backup ]; then
+        echo "Moving $original to $backup"
+        mv $original $backup
+        echo "Setting $original as symlink -> $target"
+        ln -s $target $original
+      else
+        echo "Already have a $backup Giving up."
+      fi
+    else
+      echo "$original not a file? Not changing it."
+    fi
+  else
+    echo "$original is already a symlink. Not changing it."
+  fi
+}
+
+makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
+makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
+

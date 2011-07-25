@@ -1,0 +1,192 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
+
+# don't put duplicate lines in the history. See bash(1) for more options
+# don't overwrite GNU Midnight Commander's setting of `ignorespace'.
+export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+# ... or force ignoredups and ignorespace
+export HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+# So that we can put the current git branch in the bash prompt
+function parse_git_branch {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+#if [ -f ~/.bash_aliases ]; then
+#    . ~/.bash_aliases
+#fi
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    eval "`dircolors -b`"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# some more ls aliases
+#alias ll='ls -l'
+#alias la='ls -A'
+#alias l='ls -CF'
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+# Permanent bash history collection
+HOSTNAME=`hostname -s`
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(history 1)" >> ~/.bash_permanent_history.$HOSTNAME'
+function gh {
+  grep --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
+}
+
+# enable superjump. (Disabled; causes more problems than it's worth.)
+#source $HOME/bin/j.sh
+
+umask 0002
+
+if [ -e /usr/bin/virtualenvwrapper_bashrc ]; then
+  export WORKON_HOME=$HOME/.virtualenvs
+  source /usr/bin/virtualenvwrapper_bashrc
+fi
+
+# enable stitch bash completion
+if [ -e $HOME/src/git/stitch/contrib/bash_completion ]; then
+  source $HOME/src/git/stitch/contrib/bash_completion
+fi
+
+function manyterminals {
+  # Create 4 terminals in the geometry spots I like,
+  # starting all in the same directory or server
+  #
+  # Usage:
+  #  xxt[s] [-h <hostname>]
+  #  xxt[s] <working-dir>
+  #
+  # xxt will open windows in the "normal" geometry
+  # xxts is the "small" geometry for lower resolution.
+
+  geo_offset=$1
+
+  if [ "-h" == "$2" ]; then
+    shift
+    host=$2
+  else
+    wd=$2
+  fi
+
+  if [ ! -z "$wd" ]; then
+    args="--working-directory=$wd"
+  elif [ ! -z "$host" ]; then
+    args=--command="ssh $host"
+  else
+    wd=`pwd`
+    args="--working-directory=$wd"
+  fi
+
+  # bottom left
+  gnome-terminal "$args" --geometry=100x50+0-0 &
+
+  # bottom right
+  gnome-terminal "$args" --geometry=100x50-0-0 &
+
+  # top midleft
+  gnome-terminal "$args" --geometry=100x50+$geo_offset+50 &
+
+  # top midright
+  gnome-terminal "$args" --geometry=100x50+970+50 &
+
+  exit
+}
+
+alias xxt='manyterminals 150'
+alias xxts='manyterminals 40' # small screen size
+alias xxt0='manyterminals 0' # 4:3 screen size (1600x1200)
+
+alias ack='ack-grep'
+
+alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
+alias pgr='git rev-parse --show-cdup || pwd'
+
+alias ifok='[[ "$?" == "0" ]] && $@'
+
+export PS1
+export EDITOR=vim
+export PATH=$HOME/bin:$EC2_HOME/bin:$HOME/src/git/aaron/bin:$PATH
+export PROMPT_COMMAND
+
+# Any system-specific environment settings go in ~/.localbashrc
+if [ -e $HOME/.localbashrc ]; then
+  source $HOME/.localbashrc
+fi
+

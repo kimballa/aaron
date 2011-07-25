@@ -1,0 +1,12 @@
+#!/bin/bash
+
+bin=`dirname $0`
+bin=`readlink -f ${bin}`
+
+dt=$1
+if [ -z "$dt" ]; then
+  ${bin}/tots `date '+%Y-%m-%d %H:%M:%S'`
+  exit $?
+fi
+
+${bin}/tots-inner "$@"

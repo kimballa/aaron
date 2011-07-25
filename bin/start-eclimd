@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ -z "$ECLIPSE_HOME" ]; then
+  # Set ECLIPSE_HOME ourselves by guessing.
+  # Try to find eclipse
+
+  eclipsebin=`which eclipse`
+  eclipsebin=`readlink -f "$eclipsebin"`
+  ECLIPSE_HOME=`dirname "$eclipsebin"`
+fi
+
+if [ -z "$ECLIPSE_HOME" ]; then
+  echo "Couldn't find $ECLIPSE_HOME"
+  exit 1
+fi
+
+if [ ! -x "$ECLIPSE_HOME/eclimd" ]; then
+  echo "Couldn't find eclimd!"
+  exit 1
+fi
+
+echo "Starting eclimd"
+nohup $ECLIPSE_HOME/eclimd </dev/null 2>&1 >/dev/null &
+echo ""
+

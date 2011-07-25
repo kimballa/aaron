@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ ! -f ~/.dgrep-servers ]; then
+  echo "No file ~/.dgrep-servers"
+  exit 1
+fi
+
+for server in `cat ~/.dgrep-servers`; do
+  ssh $server grep "$@" 2>&1 | sed -e "s/^\(.*\)$/${server}: \1/"
+done

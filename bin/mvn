@@ -1,0 +1,16 @@
+#!/bin/bash
+
+curdir=`pwd`
+if [ -z "$M2_HOME" ]; then
+  echo "Need M2_HOME set for this trick"
+fi
+
+$M2_HOME/bin/mvn "$@"
+ret=$?
+
+if [ "$ret" == "0" ]; then
+  notify-send "Build successful!" "in $curdir: mvn $*"
+else
+  notify-send "Build failed!" "in $curdir: mvn $*"
+fi
+
