@@ -1,0 +1,13 @@
+This contains my vimrc, bashrc, and a bunch of handy
+scripts.  For best results, put aaron.git/bin in your $PATH.
+
+Running the 'deploy-etc' script will rewrite .bashrc and
+.vimrc to point to the files in etc/ in this directory
+(after backing them up, of course!).
+
+Machine-specific bashrc elements go in ~/.localbashrc.
+
+This is most useful in conjunction with my 'vimscripts'
+repo, which contains the rest of the vim plugins and etc.
+that I use.
+
