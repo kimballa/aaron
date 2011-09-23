@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Usage: highlight regex [filenames...]
+#
+# Uses grep --color to highlight instances where the regex appears.
+
+regex=$1
+if [ -z "$regex" ]; then
+  echo "Usage: highlight regex [filenames...]"
+  exit 1
+fi
+
+shift
+
+grep --color -E "${regex}|$" "$@"

@@ -2,7 +2,7 @@
 
 # Only do screen notification if the notify-send program exists.
 which notify-send > /dev/null
-hasnotify=$?
+has_notify=$?
 
 curdir=`pwd`
 if [ -z "$M2_HOME" ]; then
@@ -12,7 +12,7 @@ fi
 $M2_HOME/bin/mvn "$@"
 ret=$?
 
-if [ "$hasnotify" == "0" ]; then
+if [ "${has_notify}" == 0 ]; then
   if [ "$ret" == "0" ]; then
     notify-send "Build successful!" "in $curdir: mvn $*"
   else
