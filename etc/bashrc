@@ -190,3 +190,9 @@ if [ -e $HOME/.localbashrc ]; then
   source $HOME/.localbashrc
 fi
 
+if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
+  # Ruby: Load RVM into a shell session *as a function* if available.
+  [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+fi
+
+
