@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+files=`find . -name "$1*"`
+count=`find . -name "$1*" | wc -l`
+
+if [ "$count" == "0" ]; then
+  echo "No match!"
+  exit 1
+elif [ "$count" == "1" ]; then
+  exec vim "$files"
+else
+  echo "Too many matches:"
+  find . -name "$1*"
+  exit 1
+fi
+
