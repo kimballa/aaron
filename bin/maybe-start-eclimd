@@ -1,9 +1,10 @@
 #!/bin/bash
 isrunning=`ps -ef | grep /eclimd | grep -v grep`
+eclipse_running=`ps -ef | grep /eclipse | grep -v grep`
 if [ ! -z "$CANCEL_ECLIMD" ]; then
   exit 0
 fi
-if [ -z "$isrunning" ]; then
+if [ -z "$isrunning" -a -z "$eclipse_running" ]; then
   start-eclimd
 fi
 

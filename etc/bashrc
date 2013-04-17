@@ -155,16 +155,16 @@ function manyterminals {
   fi
 
   # bottom left
-  gnome-terminal "$args" --geometry=100x50+0-0 &
+  gnome-terminal "$args" --geometry=100x46+0-0 &
 
   # bottom right
-  gnome-terminal "$args" --geometry=100x50-0-0 &
+  gnome-terminal "$args" --geometry=100x46-0-0 &
 
   # top midleft
-  gnome-terminal "$args" --geometry=100x50+$geo_offset+50 &
+  gnome-terminal "$args" --geometry=100x46+$geo_offset+50 &
 
   # top midright
-  gnome-terminal "$args" --geometry=100x50+970+50 &
+  gnome-terminal "$args" --geometry=100x46+970+50 &
 
   exit
 }
