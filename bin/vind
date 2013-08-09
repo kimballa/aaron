@@ -1,16 +1,28 @@
 #!/usr/bin/env bash
+#
+# usage:
+# vind <pattern> 
+#    .. this will open the file that matches pattern or list the available files.
+# vind <pattern> <offset>
+#    .. if there are multiple matches, use the <offset>'th one.
 
 files=`find . -name "$1*"`
 count=`find . -name "$1*" | wc -l`
+
+offset="$2"
 
 if [ "$count" == "0" ]; then
   echo "No match!"
   exit 1
 elif [ "$count" == "1" ]; then
   exec vim "$files"
+elif [ ! -z "$offset" ]; then
+  # multiple options, but we can choose the offset'th entry
+  offset_file=`find . -name "$1*" | head "-$offset" | tail -1`
+  exec vim "$offset_file"
 else
   echo "Too many matches:"
-  find . -name "$1*"
+  find . -name "$1*" | cat -n -
   exit 1
 fi
 

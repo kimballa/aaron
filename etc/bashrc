@@ -196,3 +196,9 @@ if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
 fi
 
 
+# Use TCP for postgresql connections to localhost, which checks passwords correctly,
+# rather than using IDENT.
+#export PGHOST=localhost
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
