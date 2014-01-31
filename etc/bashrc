@@ -137,6 +137,8 @@ function manyterminals {
   # xxts is the "small" geometry for lower resolution.
 
   geo_offset=$1
+  num_terminals=$2
+  shift
 
   if [ "-h" == "$2" ]; then
     shift
@@ -160,6 +162,10 @@ function manyterminals {
   # bottom right
   gnome-terminal "$args" --geometry=100x46-0-0 &
 
+  if [ "$num_terminals" == "2" ]; then
+    exit # Don't create the next two terminals.
+  fi
+
   # top midleft
   gnome-terminal "$args" --geometry=100x46+$geo_offset+50 &
 
@@ -169,9 +175,10 @@ function manyterminals {
   exit
 }
 
-alias xxt='manyterminals 150'
-alias xxts='manyterminals 40' # small screen size
-alias xxt0='manyterminals 0' # 4:3 screen size (1600x1200)
+alias xxt='manyterminals 150 4'
+alias xxts='manyterminals 40 4' # small screen size
+alias xxt0='manyterminals 0 4' # 4:3 screen size (1600x1200)
+alias xxtt='manyterminals 0 2' # small screen size; only two terminals.
 
 alias ack='ack-grep'
 
@@ -182,7 +189,7 @@ alias ifok='[[ "$?" == "0" ]] && $@'
 
 export PS1
 export EDITOR=vim
-export PATH=$HOME/bin:$EC2_HOME/bin:$HOME/src/git/aaron/bin:$PATH
+export PATH=$HOME/bin:$EC2_HOME/bin:$HOME/src/aaron/bin:$PATH
 export PROMPT_COMMAND
 
 # Any system-specific environment settings go in ~/.localbashrc
