@@ -6,8 +6,9 @@
 # vind <pattern> <offset>
 #    .. if there are multiple matches, use the <offset>'th one.
 
-files=`find . -name "$1*"`
-count=`find . -name "$1*" | wc -l`
+files=`find . -wholename "*/target" -prune -o -name "$1*" -print`
+count=`find . -wholename "*/target" -prune -o -name "$1*" -print | wc -l`
+
 
 offset="$2"
 
@@ -18,11 +19,12 @@ elif [ "$count" == "1" ]; then
   exec vim "$files"
 elif [ ! -z "$offset" ]; then
   # multiple options, but we can choose the offset'th entry
-  offset_file=`find . -name "$1*" | head "-$offset" | tail -1`
+  offset_file=`find . -wholename "*/target" -prune -o -name "$1*" -print \
+      | head "-$offset" | tail -1`
   exec vim "$offset_file"
 else
   echo "Too many matches:"
-  find . -name "$1*" | cat -n -
+  find . -wholename "*/target" -prune -o -name "$1*" -print | cat -n -
   exit 1
 fi
 
