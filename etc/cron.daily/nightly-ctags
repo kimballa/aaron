@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /home/aaron
+sudo -H -u aaron /home/aaron/bin/make-all-ctags
