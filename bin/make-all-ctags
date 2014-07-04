@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+
+cd "$HOME/src"
+
+# Remove the top-level tags file; we'll regenerate it.
+if [ -f tags ]; then
+  rm tags
+fi
+touch tags
+
+for srcdir in `find .  -maxdepth 2 -mindepth 2 -type d`; do
+  echo "Making tags in $srcdir"
+  pushd "$srcdir"
+    if [ -d "src" ]; then
+      # It's a maven project with a src/ directory. Let's do this.
+      find src -name "*.java" -print | xargs ctags --extra=+q
+    fi
+  popd
+
+  if [ -f "$srcdir/tags" ]; then
+    # Append it to the master tags file.
+    cat "$srcdir/tags" >> tags
+  fi
+done
