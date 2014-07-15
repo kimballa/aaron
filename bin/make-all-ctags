@@ -8,18 +8,16 @@ if [ -f tags ]; then
   rm tags
 fi
 touch tags
+toplvl=`readlink -f tags`
 
 for srcdir in `find .  -maxdepth 2 -mindepth 2 -type d`; do
   echo "Making tags in $srcdir"
   pushd "$srcdir"
     if [ -d "src" ]; then
       # It's a maven project with a src/ directory. Let's do this.
-      find src -name "*.java" -print | xargs ctags --extra=+q
+      ctags -R --extra=+q src
+      # Also append these tags to the master tags file.
+      ctags -R -f "$toplvl" --append=yes --extra=+q src
     fi
   popd
-
-  if [ -f "$srcdir/tags" ]; then
-    # Append it to the master tags file.
-    cat "$srcdir/tags" >> tags
-  fi
 done
