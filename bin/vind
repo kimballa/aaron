@@ -6,6 +6,17 @@
 # vind <pattern> <offset>
 #    .. if there are multiple matches, use the <offset>'th one.
 
+if [[ "$1" =~ .*/.* ]]; then
+  # Filename contains a path component. Just open it directly if it exists.
+  if [ -f "$1" ]; then
+    exec vim "$1"
+  else
+    echo "Error: vind cannot perform searches with a path component ('/' char in filename)"
+    echo "Argument was: $1"
+    exit 1
+  fi
+fi
+
 files=`find . -wholename "*/target" -prune -o -type f -name "$1*" -print`
 count=`find . -wholename "*/target" -prune -o -type f -name "$1*" -print | wc -l`
 
