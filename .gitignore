@@ -1,3 +1,6 @@
 /tags
 workbench.xmi
-
+*~
+*.swp
+*.pyc
+*.pyo
