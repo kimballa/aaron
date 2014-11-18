@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# 'which vi': Use vi to open a file resolved by the which(1) command.
+#
+# Usage: wvi <filename>
+# Syntactically equivalent to: vim `which <filename>`
+
+filename=$1
+exec vim `which "$filename"`
