@@ -14,6 +14,11 @@
 # * Compile the file if it is new, or different than a previous file of the same name.
 # * Run its main class as per the filename.
 #
+# Options
+# -------
+#
+# * `--clean` will remove all precompiled assets.
+#
 # Environment
 # -----------
 #
@@ -90,6 +95,12 @@ def main(argv)
 
   filename = argv[0]
   argv.shift # Remaining argv is for the user's program.
+
+  if filename == "--clean"
+    # Just remove the existing compiled assets.
+    args = [ "rm", "-rf", "/tmp/java-bootstrap" ]
+    exec(*args)
+  end
 
   File.new(filename) # This will fail with Errno::ENOENT if not found.
   basename = File.basename(filename)
