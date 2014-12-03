@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Run avro tools.
+
+if [ -z "$AVRO_HOME" ]; then
+  AVRO_HOME="$HOME/lib"
+fi
+
+if [ -z "$JAVA_HOME" ]; then
+  echo "Warning: JAVA_HOME not set."
+  JAVA_EXEC="java"
+else
+  JAVA_EXEC="$JAVA_HOME/bin/java"
+fi
+
+AVRO_JAR=`ls -1 "$AVRO_HOME"/avro-tools-* | head -1`
+
+exec "$JAVA_EXEC" -jar "$AVRO_JAR" "$@"
