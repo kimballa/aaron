@@ -1,0 +1,134 @@
+#!/usr/bin/env ruby
+#
+# java-bootstrap
+# ==============
+#
+# Bootstrap a Java script build.
+# You can run a .java file as a script by starting it with the header:
+#
+#     #!/usr/bin/env java-bootstrap
+#
+# This will:
+# * Copy the java file to a dir named after its md5sum in /tmp/
+# * Strip any file preamble lines starting with #
+# * Compile the file if it is new, or different than a previous file of the same name.
+# * Run its main class as per the filename.
+#
+# Environment
+# -----------
+#
+# This will pass any environment variables respected by java, javac, etc. to the
+# respective processes. This will modify the runtime `CLASSPATH` by including the
+# tmp dir containing the compiled result in said classpath.
+#
+# This will look for the `JAVA_HOME` variable when searching for javac and java.
+#
+
+# Copy the Java file to its runtime location and compile it with javac.
+# Strip out any leading header comments at the same time.
+#
+# @param src_filename the input file
+# @param target_dir the directory under /tmp where we are running this.
+# @param target_file the filename to copy it to.
+# @param class_file the expected output class filename.
+def compile(src_filename, target_dir, target_file, class_file)
+  if !system("mkdir -p \"#{target_dir}\"")
+    print "Could not create utility dir #{target_dir}\n"
+    exit 1
+  end
+  header_file = target_file + ".headers"
+  if !system("cp \"#{src_filename}\" \"#{header_file}\"")
+    print "Could not copy file #{src_filename} to #{header_file}\n"
+    exit 1
+  end
+  File.new(header_file) # Sanity check that the copied file with headers exists.
+
+  # Strip the headers from the target file.
+  if !system("awk 'BEGIN {header=1} ! /^#/ { header=0; } header == 0 {print}' " +
+      "\"#{header_file}\" > \"#{target_file}\"")
+    print "Could not strip header from target file via awk."
+    exit 1
+  end
+  File.new(target_file) # Sanity check that the final target file w/o headers exists.
+
+  java_home = ENV["JAVA_HOME"]
+  if java_home.nil? || java_home.empty?
+    print "WARNING: JAVA_HOME is not set. Attempting to use system javac.\n"
+    print "For best results, set JAVA_HOME first.\n"
+    javac = "javac"
+  else
+    javac = "#{java_home}/bin/javac"
+  end
+
+  begin
+    File.new(javac)
+  rescue Errno::ENOENT
+    print "Could not find javac! You may need to adjust JAVA_HOME\n"
+    print "(Currently set to \"#{java_home}\")\n"
+    exit 1
+  end
+
+  if !system("\"#{javac}\" \"#{target_file}\"")
+    print "Errors encountered during compilation.\n"
+    exit 1
+  end
+
+  begin
+    File.new(class_file) # Assert that the class file must exist, or fail with ENOENT.
+  rescue Errno::ENOENT
+    print "Target class file \"#{class_file}\" could not be found.\n"
+    print "Compilation failed.\n"
+    exit 1
+  end
+end
+
+def main(argv)
+  if argv[0].nil?
+    print("Usage: java-bootstrap <filename.java> [argv...]\n")
+    print("Runs 'filename.java' as a script\n")
+  end
+
+  filename = argv[0]
+  argv.shift # Remaining argv is for the user's program.
+
+  File.new(filename) # This will fail with Errno::ENOENT if not found.
+  basename = File.basename(filename)
+
+  md5 = `md5sum #{filename} 2>/dev/null | awk '{print $1}'`.strip
+
+  target_dir = "/tmp/java-bootstrap/#{md5}-#{basename}/"
+  target_file = target_dir + basename
+  class_file = target_file.sub(/\.java$/, ".class")
+
+  if !File.exists?(target_dir) || !File.exists?(class_file)
+    compile(filename, target_dir, target_file, class_file)
+  end
+
+  java_home = ENV["JAVA_HOME"]
+  if java_home.nil? || java_home.empty?
+    print "WARNING: JAVA_HOME is not set. Attempting to use system java.\n"
+    print "For best results, set JAVA_HOME first.\n"
+    java = "java"
+  else
+    java = "#{java_home}/bin/java"
+  end
+
+  main_class = File.basename(class_file).sub(/\.class$/, "")
+
+  # Modify our classpath to contain the new target directory.
+  classpath = ENV["CLASSPATH"]
+  if classpath.nil? || classpath.empty?
+    classpath = target_dir
+  else
+    classpath = target_dir + ":" + classpath
+  end
+  ENV["CLASSPATH"] = classpath
+
+  # Fire away!
+  argv_out = [ java, main_class ]
+  argv_out.concat(argv)
+  exec(*argv_out)
+end
+
+main(ARGV)
+
