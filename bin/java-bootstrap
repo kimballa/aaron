@@ -19,6 +19,17 @@
 #
 # * `--clean` will remove all precompiled assets.
 #
+# Dependencies
+# ------------
+#
+# You can specify dependencies in the header, either referencing jar files explicitly,
+# or using Maven coordinates of cached m2 dependencies.
+#
+# You can specify libraries in the headers with lines of the forms:
+#
+#     # lib: /path/to/foo.jar
+#     # mvn: groupId:artifactId:version
+#
 # Environment
 # -----------
 #
@@ -28,6 +39,37 @@
 #
 # This will look for the `JAVA_HOME` variable when searching for javac and java.
 #
+
+# Return a list of dependencies to add to the classpath.
+#
+# You can specify libraries in the headers with lines of the forms:
+#
+#     #lib: /path/to/jar
+#     #mvn: groupId:artifactId:version
+#
+# @param headers_file the target file with the library headers.
+# @return a classpath string containing all the dependencies.
+def get_dependencies(headers_file)
+  lib_header_lines = `grep '^#[ ]*lib:' "#{headers_file}" | sed -e 's/#//' | sed -e 's/lib://'`
+  lib_headers = lib_header_lines.split("\n")
+  lib_headers = lib_headers.map { |lib| lib.strip }
+
+  home = ENV["HOME"]
+
+  mvn_header_lines = 
+  mvn_header_lines = `grep '^#[ ]*mvn:' "#{headers_file}" | sed -e 's/#//' | sed -e 's/mvn://'`
+  mvn_headers = mvn_header_lines.split("\n")
+  mvn_headers = mvn_headers.map { |mvn| mvn.strip }
+  mvn_headers = mvn_headers.map { |mvn|
+      coordinates = mvn.split(":")
+      groupId = coordinates[0]
+      artifactId = coordinates[1]
+      version = coordinates[2]
+     "#{home}/.m2/repository/#{groupId}/#{artifactId}/#{version}/#{artifactId}-#{version}.jar"
+  }
+  
+  return lib_headers.concat(mvn_headers).join(":")
+end
 
 # Copy the Java file to its runtime location and compile it with javac.
 # Strip out any leading header comments at the same time.
@@ -73,6 +115,10 @@ def compile(src_filename, target_dir, target_file, class_file)
     exit 1
   end
 
+  if @@verbose
+    print "Using javac: #{javac}\n"
+  end
+
   if !system("\"#{javac}\" \"#{target_file}\"")
     print "Errors encountered during compilation.\n"
     exit 1
@@ -89,11 +135,16 @@ end
 
 def main(argv)
   if argv[0].nil?
-    print("Usage: java-bootstrap <filename.java> [argv...]\n")
+    print("Usage: java-bootstrap [-v] <filename.java> [argv...]\n")
     print("Runs 'filename.java' as a script\n")
   end
 
   filename = argv[0]
+  @@verbose = filename == "-v"
+  if @@verbose
+    argv.shift
+    filename = argv[0]
+  end
   argv.shift # Remaining argv is for the user's program.
 
   if filename == "--clean"
@@ -105,11 +156,28 @@ def main(argv)
   File.new(filename) # This will fail with Errno::ENOENT if not found.
   basename = File.basename(filename)
 
-  md5 = `md5sum #{filename} 2>/dev/null | awk '{print $1}'`.strip
+  # Find the dependencies.
+  deps = get_dependencies(filename)
 
+  # Calculate the target working directory.
+  md5 = `md5sum #{filename} 2>/dev/null | awk '{print $1}'`.strip
   target_dir = "/tmp/java-bootstrap/#{md5}-#{basename}/"
   target_file = target_dir + basename
   class_file = target_file.sub(/\.java$/, ".class")
+
+  # Modify our classpath to contain the new target directory and any dependencies.
+  orig_classpath = ENV["CLASSPATH"]
+  classpath = target_dir
+  if !deps.empty?
+    classpath = classpath + ":" + deps
+  end
+  if !orig_classpath.nil? && !orig_classpath.empty?
+    classpath = classpath + ":" + orig_classpath
+  end
+  ENV["CLASSPATH"] = classpath
+  if @@verbose
+    print "Using classpath: " + classpath + "\n"
+  end
 
   if !File.exists?(target_dir) || !File.exists?(class_file)
     compile(filename, target_dir, target_file, class_file)
@@ -124,16 +192,11 @@ def main(argv)
     java = "#{java_home}/bin/java"
   end
 
-  main_class = File.basename(class_file).sub(/\.class$/, "")
-
-  # Modify our classpath to contain the new target directory.
-  classpath = ENV["CLASSPATH"]
-  if classpath.nil? || classpath.empty?
-    classpath = target_dir
-  else
-    classpath = target_dir + ":" + classpath
+  if @@verbose
+    print "Using java: #{java}\n"
   end
-  ENV["CLASSPATH"] = classpath
+
+  main_class = File.basename(class_file).sub(/\.class$/, "")
 
   # Fire away!
   argv_out = [ java, main_class ]
