@@ -14,10 +14,19 @@
 # * Compile the file if it is new, or different than a previous file of the same name.
 # * Run its main class as per the filename.
 #
+# Running
+# -------
+#
+# You can also run this on the command-line:
+#
+#     java-bootstrap [options]
+#     java-bootstrap [-v] <script-filename.java> [script-args...]
+#
 # Options
 # -------
 #
-# * `--clean` will remove all precompiled assets.
+# * `--clean` will remove all precompiled assets. Will not compile/run any scripts.
+# * `-v` before a `.java` filename, will use verbose mode 
 #
 # Dependencies
 # ------------
