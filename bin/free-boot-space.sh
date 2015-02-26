@@ -5,12 +5,22 @@
 
 if [ "$1" == "--help" ]; then
   echo "Usage: $0 { --dry-run | --force }"
-elif [ "$1" == "--dry-run" ]; then
+  exit 0
+fi
+
+echo "Current Linux version:"
+echo "Linux "`uname -r`
+echo '-----------------------------'
+echo ''
+
+if [ "$1" == "--dry-run" ]; then
   # Just list what we'd remove.
   echo "Would remove the following packages:"
   echo ""
   dpkg -l 'linux-*' | sed '/^ii/!d;/'"$(uname -r | \
       sed "s/\(.*\)-\([^0-9]\+\)/\1/")"'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d'
+  echo ""
+  echo "To remove, run: $0 --force"
 elif [ "$1" == "--force" ]; then
   # Actually clean up.
   dpkg -l 'linux-*' | sed '/^ii/!d;/'"$(uname -r | \
