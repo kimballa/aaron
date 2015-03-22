@@ -12,6 +12,11 @@
 #     etc...
 # 
 
+explain=0
+if [ "$1" == "--explain" ]; then
+  explain=1
+  shift
+fi
 
 pid=$$
 
@@ -36,10 +41,6 @@ trap cleanup EXIT
 echo "." >> $argsfile
 cat >>$argsfile <<EOF
 \(
--wholename
-"*/target"
--prune
--o 
 -type
 f
 -name
@@ -69,8 +70,18 @@ if [ -e "$HOME/.vind-exclude" ]; then
 fi
 
 cat >>$argsfile <<EOF
+-wholename
+"*/target"
+-prune
+-o 
 -print
 EOF
+
+# Just show what we'd search for.
+if [ "1" == "$explain" ]; then
+  cat "$argsfile" | xargs echo find
+  exit 0
+fi
 
 if [[ "$1" =~ .*/.* ]]; then
   # Filename contains a path component. Just open it directly if it exists.
