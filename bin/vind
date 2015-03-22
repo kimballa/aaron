@@ -5,6 +5,70 @@
 #    .. this will open the file that matches pattern or list the available files.
 # vind <pattern> <offset>
 #    .. if there are multiple matches, use the <offset>'th one.
+#
+# To exclude file patterns, add them one-per line to $HOME/.vind-exclude:
+#     *.class
+#     *.pyc
+#     etc...
+# 
+
+
+pid=$$
+
+# Create a file with 'find(1)' arguments to use, $argsfile.
+# Create another file to hold the find results, $searchfile.
+argsfile=/tmp/vind-args.$pid.$USER
+searchfile=/tmp/vind-search.$pid.$USER
+
+rm -f "$searchfile" 2>/dev/null
+rm -f "$argsfile" 2>/dev/null
+
+touch "$argsfile"
+touch "$searchfile"
+
+function cleanup {
+  rm -f "$argsfile"
+  rm -f "$searchfile"
+}
+trap cleanup EXIT
+
+# Write the argsfile.
+echo "." >> $argsfile
+if [ -e "$HOME/.vind-exclude" ]; then
+  echo "!" >> $argsfile
+  echo "\(" >> $argsfile
+  first=1
+  cat "$HOME/.vind-exclude" | while read line
+  do
+    pattern=`echo "$line" | tr -d ' '`
+    if [ ! -z "$pattern" ]; then
+      # For each line in .vind-exclude, add a '... -name "$pattern"' test to a list
+      # of files to rule out.
+      if [ "1" != "$first" ]; then
+        echo "-o" >> $argsfile
+      fi
+       # Add the line to the find arguments.
+       echo "-name" >> $argsfile
+       echo "$line" >> $argsfile
+       first=0
+     fi
+  done
+  echo "\)" >> $argsfile
+fi
+
+cat >>$argsfile <<EOF
+\(
+-wholename
+"*/target"
+-prune
+-o 
+-type
+f
+-name
+"$1*"
+\)
+-print
+EOF
 
 if [[ "$1" =~ .*/.* ]]; then
   # Filename contains a path component. Just open it directly if it exists.
@@ -17,9 +81,9 @@ if [[ "$1" =~ .*/.* ]]; then
   fi
 fi
 
-files=`find . -wholename "*/target" -prune -o -type f -name "$1*" -print`
-count=`find . -wholename "*/target" -prune -o -type f -name "$1*" -print | wc -l`
-
+cat "$argsfile" | xargs find > "$searchfile"
+files=`cat "$searchfile"`
+count=`cat "$searchfile" | wc -l`
 
 offset="$2"
 
@@ -29,13 +93,12 @@ if [ "$count" == "0" ]; then
 elif [ "$count" == "1" ]; then
   exec vim "$files"
 elif [ ! -z "$offset" ]; then
-  # multiple options, but we can choose the offset'th entry
-  offset_file=`find . -wholename "*/target" -prune -o -type f -name "$1*" -print \
-      | head "-$offset" | tail -1`
+  # multiple options, but we can choose the offset-th entry
+  offset_file=`cat $searchfile | head "-$offset" | tail -1`
   exec vim "$offset_file"
 else
   echo "Too many matches:"
-  find . -wholename "*/target" -prune -o -type f -name "$1*" -print | cat -n -
+  cat "$searchfile" | cat -n -
   exit 1
 fi
 

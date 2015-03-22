@@ -47,4 +47,6 @@ makesafelink() {
 
 makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
 makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
+makesafelink $HOME/.vind-exclude $HOME/.vind-exclude.orig ${etcdir}/vind-exclude
+
 
