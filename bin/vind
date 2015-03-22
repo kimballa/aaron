@@ -70,11 +70,17 @@ if [ -e "$HOME/.vind-exclude" ]; then
 fi
 
 cat >>$argsfile <<EOF
+\(
 -wholename
 "*/target"
 -prune
 -o 
+-type
+f
+-name
+"$1*"
 -print
+\)
 EOF
 
 # Just show what we'd search for.
