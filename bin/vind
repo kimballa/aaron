@@ -34,6 +34,18 @@ trap cleanup EXIT
 
 # Write the argsfile.
 echo "." >> $argsfile
+cat >>$argsfile <<EOF
+\(
+-wholename
+"*/target"
+-prune
+-o 
+-type
+f
+-name
+"$1*"
+\)
+EOF
 if [ -e "$HOME/.vind-exclude" ]; then
   echo "!" >> $argsfile
   echo "\(" >> $argsfile
@@ -57,16 +69,6 @@ if [ -e "$HOME/.vind-exclude" ]; then
 fi
 
 cat >>$argsfile <<EOF
-\(
--wholename
-"*/target"
--prune
--o 
--type
-f
--name
-"$1*"
-\)
 -print
 EOF
 
