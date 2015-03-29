@@ -100,8 +100,10 @@ def compile(src_filename, target_dir, target_file, class_file)
   File.new(header_file) # Sanity check that the copied file with headers exists.
 
   # Strip the headers from the target file.
-  if !system("awk 'BEGIN {header=1} ! /^#/ { header=0; } header == 0 {print}' " +
-      "\"#{header_file}\" > \"#{target_file}\"")
+  if !system("""awk 'BEGIN {header=1} ! /^#/ { header=0; } 
+                header == 1 {print \"//\" $0 } 
+                header == 0 {print}' \
+                \"#{header_file}\" > \"#{target_file}\"""")
     print "Could not strip header from target file via awk."
     exit 1
   end
