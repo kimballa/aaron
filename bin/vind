@@ -72,7 +72,7 @@ fi
 cat >>$argsfile <<EOF
 \(
 -wholename
-"*/target"
+"*/target/*"
 -prune
 -o 
 -type
