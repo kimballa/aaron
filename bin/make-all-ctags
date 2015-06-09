@@ -10,14 +10,23 @@ fi
 touch tags
 toplvl=`readlink -f tags`
 
+make_tags_for_dir() {
+  ctags -R --extra=+q "$@"
+  # Also append these tags to the master tags file.
+  ctags -R -f "$toplvl" --append=yes --extra=+q --tag-relative=yes "$@"
+}
+
 for srcdir in `find .  -maxdepth 2 -mindepth 2 -type d`; do
-  echo "Making tags in $srcdir"
+  echo "Searching for source in $srcdir"
   pushd "$srcdir"
     if [ -d "src" ]; then
+      echo "Making ctags in maven project."
       # It's a maven project with a src/ directory. Let's do this.
-      ctags -R --extra=+q src
-      # Also append these tags to the master tags file.
-      ctags -R -f "$toplvl" --append=yes --extra=+q src
+      make_tags_for_dir "src"
+    elif [ -d "app" ]; then
+      echo "Making ctags in Ruby project."
+      make_tags_for_dir "app" "test" "config" "lib"
     fi
   popd
+  echo ""
 done
