@@ -94,15 +94,30 @@ def run_for_value(cmd):
   return "\n".join(lines)
 
 
-def rebase_all(dest_branch, branch_list, start_ref):
+def rebase_all(dest_branch, branch_list, start_ref, branch_list_file):
   for branch in branch_list:
     print "Rebasing branch: " + branch
     run("git checkout " + branch)
     lastrev = run_for_value("git rev-parse HEAD")
-    if start_ref:
-      run("git rebase --onto " + dest_branch + " " + start_ref + " " + branch)
-    else:
-      run("git rebase " + dest_branch)
+    try:
+      if start_ref:
+        run("git rebase --onto " + dest_branch + " " + start_ref + " " + branch)
+      else:
+        run("git rebase " + dest_branch)
+    except:
+      print ""
+      print "There was a conflict during the last merge."
+      print "You should fix this manually, git add the affected files, then run:"
+      print "  git rebase --continue"
+      cur_branch_idx = branch_list.index(branch)
+      if (cur_branch_idx < len(branch_list - 1)):
+        # There are more branches to rebase after this one.
+        next_branch = branch_list[cur_branch_idx + 1]
+        print ""
+        print "To resume patchset rebase after this, run:"
+        print ("rebase-patchset.py %(branch_list_file)s %(branch)s " + \
+            "%(next_branch)s %(lastrev)s ") % locals()
+      raise
     dest_branch = branch
     start_ref = lastrev
 
@@ -121,6 +136,10 @@ def main():
   if sys.argv[1] == "-h" or sys.argv[1] == "--help":
     print_usage()
     return 0
+
+  if len(sys.argv) < 3:
+    print_usage()
+    return 1
 
   branch_list_file = sys.argv[1]
   dest_branch = sys.argv[2]
@@ -143,7 +162,7 @@ def main():
       print "No such branch in branchlist: " + start_branch
       return 1
 
-  rebase_all(dest_branch, all_branches, start_ref)
+  rebase_all(dest_branch, all_branches, start_ref, branch_list_file)
   
 
 if __name__ == "__main__":
