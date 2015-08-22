@@ -133,6 +133,10 @@ Usage: rebase-patchset.py branchlist.txt dest-branch [start-branch [parent-ref]]
 """
 
 def main():
+  if len(sys.argv) == 1:
+    print_usage()
+    return 1
+
   if sys.argv[1] == "-h" or sys.argv[1] == "--help":
     print_usage()
     return 0
