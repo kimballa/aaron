@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#
+# Time and Date indicator missing from the upper right?
+# Run this to fix it.
+
+killall unity-panel-service
