@@ -4,3 +4,5 @@ workbench.xmi
 *.swp
 *.pyc
 *.pyo
+bin/android-studio.sh
+bin/tunnel-to-lims-prod-db.sh
