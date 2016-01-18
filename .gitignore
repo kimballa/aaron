@@ -4,5 +4,10 @@ workbench.xmi
 *.swp
 *.pyc
 *.pyo
+
+# Various things I've tossed in bin/ that are real elf files, or otherwise
+# shouldn't be managed by this repo.
 bin/android-studio.sh
 bin/tunnel-to-lims-prod-db.sh
+bin/xflux
+bin/zinc
