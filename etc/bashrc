@@ -208,3 +208,10 @@ if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
   # Ruby: Load RVM into a shell session *as a function* if available.
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 fi
+
+# A function to alert you when a slow command completes.
+function slowly {
+  "$@"
+  notify-send "Completed: $*"
+}
+

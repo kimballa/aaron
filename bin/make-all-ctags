@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-cd "$HOME/src"
+cd "$HOME/src/corp"
 
 # Remove the top-level tags file; we'll regenerate it.
 if [ -f tags ]; then
