@@ -177,8 +177,6 @@ alias xxts='manyterminals 40 4' # small screen size
 alias xxt0='manyterminals 0 4' # 4:3 screen size (1600x1200)
 alias xxtt='manyterminals 0 2' # small screen size; only two terminals.
 
-alias ack='ack-grep'
-
 alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
 alias pgr='git rev-parse --show-cdup || pwd'
 
