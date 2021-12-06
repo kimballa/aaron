@@ -49,4 +49,8 @@ makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
 makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
 makesafelink $HOME/.vind-exclude $HOME/.vind-exclude.orig ${etcdir}/vind-exclude
 
+# Make subdirectories in home for capabilities I use.
+mkdir -p $HOME/share/bin
+mkdir -p $HOME/share/bash_completion.d
+
 
