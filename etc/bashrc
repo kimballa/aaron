@@ -187,6 +187,13 @@ export EDITOR=vim
 export PATH=$HOME/bin:$EC2_HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$PATH
 export PROMPT_COMMAND
 
+# Do we have personal bash completion scripts? Source them all.
+if [ -d "$HOME/share/bash_completion.d" ]; then
+  for filename in "$HOME"/share/bash_completion.d/*.sh; do
+    source "$filename"
+  done
+fi
+
 # Any system-specific environment settings go in ~/.localbashrc
 if [ -e $HOME/.localbashrc ]; then
   source $HOME/.localbashrc
