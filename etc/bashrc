@@ -153,21 +153,34 @@ function manyterminals {
     args="--working-directory=$wd"
   fi
 
-  # bottom left
-  gnome-terminal "$args" --geometry=100x46+0-0 &
+  # Ascertain whether we're in WSL or regular Linux.
+  uname -a | grep -i microsoft 2>&1 >/dev/null
+  if [ $? == 0 ]; then
+    cmd.exe /c start bash
+    cmd.exe /c start bash
+    if [ "$num_terminals" == "2" ]; then
+      exit # Don't create the next two terminals.
+    fi
+    cmd.exe /c start bash
+    cmd.exe /c start bash
+  else
+    # Regular gnome-terminal in Linux.
+    # bottom left
+    gnome-terminal "$args" --geometry=100x46+0-0 &
 
-  # bottom right
-  gnome-terminal "$args" --geometry=100x46-0-0 &
+    # bottom right
+    gnome-terminal "$args" --geometry=100x46-0-0 &
 
-  if [ "$num_terminals" == "2" ]; then
-    exit # Don't create the next two terminals.
+    if [ "$num_terminals" == "2" ]; then
+      exit # Don't create the next two terminals.
+    fi
+
+    # top midleft
+    gnome-terminal "$args" --geometry=100x46+$geo_offset+50 &
+
+    # top midright
+    gnome-terminal "$args" --geometry=100x46+970+50 &
   fi
-
-  # top midleft
-  gnome-terminal "$args" --geometry=100x46+$geo_offset+50 &
-
-  # top midright
-  gnome-terminal "$args" --geometry=100x46+970+50 &
 
   exit
 }
