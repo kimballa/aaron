@@ -156,13 +156,17 @@ function manyterminals {
   # Ascertain whether we're in WSL or regular Linux.
   uname -a | grep -i microsoft 2>&1 >/dev/null
   if [ $? == 0 ]; then
-    cmd.exe /c start bash
-    cmd.exe /c start bash
+    local wslcwd=`pwd`
+    if [ -z "$wd" ]; then
+      wslcwd="$wd"
+    fi
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
     if [ "$num_terminals" == "2" ]; then
       exit # Don't create the next two terminals.
     fi
-    cmd.exe /c start bash
-    cmd.exe /c start bash
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
   else
     # Regular gnome-terminal in Linux.
     # bottom left
