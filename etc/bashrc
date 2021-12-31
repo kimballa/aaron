@@ -237,3 +237,8 @@ function slowly {
   notify-send "Completed: $*"
 }
 
+# If the user has a personal 'hosts' file, use it.
+if [ -f "$HOME/.hosts" ]; then
+  export HOSTALIASES="$HOME/.hosts"
+fi
+
