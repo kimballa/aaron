@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Fix the terminal after something screws it up
+
+reset     #  Reset main terminal properties
+tput sgr0 #  Fix cursor and other highlighting issues.
