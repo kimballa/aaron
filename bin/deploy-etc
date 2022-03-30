@@ -48,6 +48,7 @@ makesafelink() {
 makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
 makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
 makesafelink $HOME/.vind-exclude $HOME/.vind-exclude.orig ${etcdir}/vind-exclude
+makesafelink $HOME/.dircolors $HOME/.dircolors.orig ${etcdir}/dircolors
 
 # Make subdirectories in home for capabilities I use.
 mkdir -p $HOME/share/bin

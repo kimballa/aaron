@@ -41,7 +41,7 @@ function parse_git_branch {
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -55,7 +55,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]`parse_git_branch`\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;37m\]\u@\h\[\033[00m\]:\[\033[01;36m\]\w\[\033[00m\]`parse_git_branch`\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w`parse_git_branch`\$ '
 fi
@@ -117,11 +117,6 @@ if [ -e /usr/bin/virtualenvwrapper_bashrc ]; then
   source /usr/bin/virtualenvwrapper_bashrc
 fi
 
-# enable stitch bash completion
-if [ -e $HOME/src/git/stitch/contrib/bash_completion ]; then
-  source $HOME/src/git/stitch/contrib/bash_completion
-fi
-
 function manyterminals {
   # Create 4 terminals in the geometry spots I like,
   # starting all in the same directory or server
@@ -156,6 +151,7 @@ function manyterminals {
   # Ascertain whether we're in WSL or regular Linux.
   uname -a | grep -i microsoft 2>&1 >/dev/null
   if [ $? == 0 ]; then
+    # WSL-specific invocation
     local wslcwd=`pwd`
     if [ -z "$wd" ]; then
       wslcwd="$wd"
@@ -201,7 +197,7 @@ alias ifok='[[ "$?" == "0" ]] && $@'
 
 export PS1
 export EDITOR=vim
-export PATH=$HOME/bin:$EC2_HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$HOME/share/bin:$PATH
 export PROMPT_COMMAND
 
 # Do we have personal bash completion scripts? Source them all.
@@ -216,16 +212,11 @@ if [ -e $HOME/.localbashrc ]; then
   source $HOME/.localbashrc
 fi
 
-
 # Use TCP for postgresql connections to localhost, which checks passwords correctly,
 # rather than using IDENT.
 #export PGHOST=localhost
 
-### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
-
 #PATH=$HOME/.rvm/bin:"$PATH" # Add RVM to PATH for scripting
-
 if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
   # Ruby: Load RVM into a shell session *as a function* if available.
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
@@ -238,6 +229,11 @@ function slowly {
 }
 
 # If the user has a personal 'hosts' file, use it.
+# The HOSTALIASES environment variable must point to this file for it to be useful
+# to getaddrinfo(3) or gethostbyname(3).
+# Note that its format is *different* from /etc/hosts (hosts(5)).
+# Lines should contain tab-delimited <hostname -- IPaddr> pairs, 
+# not IPaddr--hostname as in /etc/hosts.
 if [ -f "$HOME/.hosts" ]; then
   export HOSTALIASES="$HOME/.hosts"
 fi
