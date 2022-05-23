@@ -185,6 +185,16 @@ function manyterminals {
   exit
 }
 
+# Local WSL command to open four terminals to the ubuntu VM each in a screen session.
+function 4xvm {
+  local mywd=`pwd`
+  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm0" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm1" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm2" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm3" 2>/dev/null
+  exit
+}
+
 alias xxt='manyterminals 150 4'
 alias xxts='manyterminals 40 4' # small screen size
 alias xxt0='manyterminals 0 4' # 4:3 screen size (1600x1200)
@@ -232,7 +242,7 @@ function slowly {
 # The HOSTALIASES environment variable must point to this file for it to be useful
 # to getaddrinfo(3) or gethostbyname(3).
 # Note that its format is *different* from /etc/hosts (hosts(5)).
-# Lines should contain tab-delimited <hostname -- IPaddr> pairs, 
+# Lines should contain tab-delimited <hostname -- IPaddr> pairs,
 # not IPaddr--hostname as in /etc/hosts.
 if [ -f "$HOME/.hosts" ]; then
   export HOSTALIASES="$HOME/.hosts"
