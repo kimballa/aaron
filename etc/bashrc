@@ -212,7 +212,7 @@ export PROMPT_COMMAND
 
 # Do we have personal bash completion scripts? Source them all.
 if [ -d "$HOME/share/bash_completion.d" ]; then
-  for filename in "$HOME"/share/bash_completion.d/*.sh; do
+  for filename in $(find "$HOME"/share/bash_completion.d -name "*.sh" 2>/dev/null); do
     source "$filename"
   done
 fi
