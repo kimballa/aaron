@@ -45,16 +45,32 @@ makesafelink() {
   fi
 }
 
+echo "Installing bash config..."
 makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
-makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
 makesafelink $HOME/.vind-exclude $HOME/.vind-exclude.orig ${etcdir}/vind-exclude
 makesafelink $HOME/.dircolors $HOME/.dircolors.orig ${etcdir}/dircolors
 
-makesafelink $HOME/.vim $HOME/.vim.orig ${etcdir}/vim
+echo ""
+if [ ! -d "${etcdir}/../../vimscripts" ]; then
+  echo "Warning: the vimscripts.git companion repo should be a sibling of this aaron.git repo."
+  echo "Vim configuration cannot be deployed without this in place. (Skipping)"
+else
+  echo "Installing vim config..."
+  makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
+  makesafelink $HOME/.vim $HOME/.vim.orig ${etcdir}/vim
+fi
 
 # Make subdirectories in home for capabilities I use.
-echo "Setting up ~/share..."
+# These start empty, but are referenced in my bashrc.
+echo ""
+echo "Setting up home directories..."
+set -x
 mkdir -p $HOME/share/bin
 mkdir -p $HOME/share/bash_completion.d
+mkdir -p $HOME/.ssh
+{ set +x; } 2>/dev/null
+
+echo ""
+echo "Done. Welcome home!"
 
 
