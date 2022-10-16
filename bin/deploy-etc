@@ -60,6 +60,10 @@ else
   makesafelink $HOME/.vim $HOME/.vim.orig ${etcdir}/vim
 fi
 
+echo ""
+echo "Installing other personal config files..."
+makesafelink $HOME/.gitconfig $HOME/.gitconfig.orig ${etcdir}/gitconfig
+
 # Make subdirectories in home for capabilities I use.
 # These start empty, but are referenced in my bashrc.
 echo ""

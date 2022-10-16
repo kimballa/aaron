@@ -1,0 +1,9 @@
+[user]
+	name = Aaron Kimball
+	email = akimball83@gmail.com
+[color]
+  ui = true
+[core]
+  editor = vim
+[credential]
+  helper = store
