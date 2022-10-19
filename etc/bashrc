@@ -103,6 +103,10 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+  . /usr/share/bash-completion/bash_completion
+fi
+
 # Permanent bash history collection
 HOSTNAME=`hostname -s`
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(history 1)" >> ~/.bash_permanent_history.$HOSTNAME'
