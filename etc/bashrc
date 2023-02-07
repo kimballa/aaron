@@ -65,6 +65,8 @@ unset color_prompt force_color_prompt
 case "$TERM" in
 xterm*|rxvt*)
     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    export COLORTERM=1
+    export CLICOLOR=1
     ;;
 *)
     ;;
@@ -82,14 +84,14 @@ esac
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
 fi
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # some more ls aliases
 #alias ll='ls -l'
@@ -221,11 +223,6 @@ if [ -d "$HOME/share/bash_completion.d" ]; then
   done
 fi
 
-# Any system-specific environment settings go in ~/.localbashrc
-if [ -e $HOME/.localbashrc ]; then
-  source $HOME/.localbashrc
-fi
-
 # Use TCP for postgresql connections to localhost, which checks passwords correctly,
 # rather than using IDENT.
 #export PGHOST=localhost
@@ -252,3 +249,24 @@ if [ -f "$HOME/.hosts" ]; then
   export HOSTALIASES="$HOME/.hosts"
 fi
 
+# Preferred color scheme:
+# dir: bright white
+# sym: bold cyan
+# socket: pink
+# pipe: pink
+# executable: green
+# block dev: yellow
+# char dev: yellow
+# setuid: white on green
+# setgid: white on green
+# o+w dir, sticky: bright white on green
+# o+w dir, not sticky: bright white
+#
+# See `LSCOLORS` section in ls(1)
+export LSCOLORS='HxGxfxfxcxDxDxxcxcHcHx'
+
+# Any system-specific environment settings go in ~/.localbashrc
+# Added last so it can override anything here.
+if [ -e $HOME/.localbashrc ]; then
+  source $HOME/.localbashrc
+fi
