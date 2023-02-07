@@ -75,6 +75,9 @@ mkdir -p "$HOME/.ssh"
 { set +x; } 2>/dev/null
 
 makesafelink "$HOME/bin" "$HOME/bin.orig" "${bin}"
+completion_dir="${etcdir}/../bash_completion.d"
+completion_dir=`readlink -f "${completion_dir}"`
+makesafelink "$HOME/share/bash_completion.d" "$HOME/share/bash_completion.d.orig" "${completion_dir}"
 
 echo ""
 echo "Done. Welcome home!"
