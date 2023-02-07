@@ -217,8 +217,10 @@ export PATH=$HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$HOME/share/bin:$PATH
 export PROMPT_COMMAND
 
 # Do we have personal bash completion scripts? Source them all.
-if [ -d "$HOME/share/bash_completion.d" ]; then
-  for filename in $(find "$HOME"/share/bash_completion.d -name "*.sh" 2>/dev/null); do
+compl_dir="$HOME/share/bash_completion.d"
+compl_dir=`readlink -f "$compl_dir"`
+if [ -d "$compl_dir" ]; then
+  for filename in $(find "$compl_dir" -name "*.sh" 2>/dev/null); do
     source "$filename"
   done
 fi
