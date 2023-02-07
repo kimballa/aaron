@@ -4,11 +4,11 @@
 
 set -e
 
-bin=`readlink -f $0`
-bin=`dirname ${bin}`
-bin=`cd ${bin} && pwd`
+bin=`readlink -f "$0"`
+bin=`dirname "${bin}"`
+bin=`cd "${bin}" && pwd`
 
-etcdir=`cd ${bin}/../etc && pwd`
+etcdir=`cd "${bin}/../etc" && pwd`
 
 makesafelink() {
   # Three arguments:
@@ -69,10 +69,12 @@ makesafelink $HOME/.gitconfig $HOME/.gitconfig.orig ${etcdir}/gitconfig
 echo ""
 echo "Setting up home directories..."
 set -x
-mkdir -p $HOME/share/bin
-mkdir -p $HOME/share/bash_completion.d
-mkdir -p $HOME/.ssh
+mkdir -p "$HOME/share/bin"
+mkdir -p "$HOME/share/bash_completion.d"
+mkdir -p "$HOME/.ssh"
 { set +x; } 2>/dev/null
+
+makesafelink "$HOME/bin" "$HOME/bin.orig" "${bin}"
 
 echo ""
 echo "Done. Welcome home!"
