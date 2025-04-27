@@ -116,7 +116,7 @@ function gh {
   grep --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
 }
 
-umask 0002
+#umask 0002
 
 if [ -e /usr/bin/virtualenvwrapper_bashrc ]; then
   export WORKON_HOME=$HOME/.virtualenvs
