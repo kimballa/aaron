@@ -162,13 +162,13 @@ function manyterminals {
     if [ -z "$wd" ]; then
       wslcwd="$wd"
     fi
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     if [ "$num_terminals" == "2" ]; then
       exit # Don't create the next two terminals.
     fi
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
   else
     # Regular gnome-terminal in Linux.
     # bottom left
@@ -194,10 +194,10 @@ function manyterminals {
 # Local WSL command to open four terminals to the ubuntu VM each in a screen session.
 function 4xvm {
   local mywd=`pwd`
-  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm0" 2>/dev/null
-  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm1" 2>/dev/null
-  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm2" 2>/dev/null
-  cmd.exe /c start bash -c "cd $mywd && ssh ubuntuvm -t screen -d -R -S vm3" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
+  cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
   exit
 }
 
@@ -234,6 +234,11 @@ if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
   # Ruby: Load RVM into a shell session *as a function* if available.
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 fi
+
+# Add nvm for nodejs.
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # A function to alert you when a slow command completes.
 function slowly {
