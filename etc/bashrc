@@ -113,7 +113,7 @@ fi
 HOSTNAME=`hostname -s`
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(history 1)" >> ~/.bash_permanent_history.$HOSTNAME'
 function gh {
-  grep --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
+  grep --text --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
 }
 
 #umask 0002
