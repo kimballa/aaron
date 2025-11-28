@@ -159,16 +159,28 @@ function manyterminals {
   if [ $? == 0 ]; then
     # WSL-specific invocation
     local wslcwd=`pwd`
-    if [ -z "$wd" ]; then
+    if [ ! -z "$wd" ]; then
       wslcwd="$wd"
     fi
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+
+    cd /mnt/c # cmd.exe must be started in a non-UNC Windows working dir.
+    cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
+    cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
+
+    #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+    #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     if [ "$num_terminals" == "2" ]; then
+      cd "$wslcwd" # Don't forget to switch back
       exit # Don't create the next two terminals.
     fi
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
-    cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+
+    cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
+    cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
+
+    #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+    #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
+    
+    cd "$wslcwd" # Don't forget to switch back
   else
     # Regular gnome-terminal in Linux.
     # bottom left
