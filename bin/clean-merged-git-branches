@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Remove tracking branches of a git repo that have been merged to main.
+# Will not remove the current branch, main, or master.
+
+set -e
+git fetch origin
+git branch --merged origin/main | grep -vE "^\s*(\*|main|master)" | xargs -n 1 git branch -d
+git remote prune origin
