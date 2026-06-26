@@ -112,9 +112,10 @@ fi
 # Permanent bash history collection
 HOSTNAME=`hostname -s`
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(history 1)" >> ~/.bash_permanent_history.$HOSTNAME'
-function gh {
+function global_history {
   grep --text --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
 }
+alias gh='global_history'
 
 #umask 0002
 
