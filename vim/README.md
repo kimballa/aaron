@@ -4,10 +4,6 @@
 The vim/ directory in here is my ~/.vim directory.
 The vimrc file is my ~/.vimrc file. (Actually, these are symlinked into my git repo.)
 
-The only thing that is missing is the .vim/eclim/ directory. That seems to
-need to be installed via the eclim installer at www.eclim.org.
-(Note, 2020: Disabled eclim in vimrc)
-
 You should also install the exuberant-ctags package:
   sudo apt-get install exuberant-ctags
 

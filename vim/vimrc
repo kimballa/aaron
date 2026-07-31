@@ -48,15 +48,8 @@ au Filetype html source ~/.vim/plugin/closetag.vim
 au BufRead,BufNewFile *.scala set filetype=scala
 au BufRead,BufNewFile *.scala set syntax=scala
 
-" for eclim
 set nocompatible
 filetype plugin on
-" (aaron) 2020 -- disable Eclim for now.
-let g:EclimDisabled = 1
-"silent !maybe-start-eclimd&
-
-" Use first level of the package name for grouping in Eclim imports
-let g:EclimJavaImportPackageSeparationLevel = 1
 
 " Set up tags like I want them.
 " In priority order, search current project, then all source in ~/src.
@@ -188,11 +181,6 @@ fun! AaronStripTrailingWhitespaces()
 endfun
 command! -nargs=0 -bar Strip call AaronStripTrailingWhitespaces()
 
-
-" Disable Eclim XML validation; we never have XSL files handy.
-let g:EclimXmlValidate=0
-" And for similar reasons, do not update the classpath; user should mvn eclipse:eclipse anyway.
-let g:EclimMavenPomClasspathUpdate=0
 
 " Set the preview window to be tiny by default.
 set previewheight=2

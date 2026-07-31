@@ -1,39 +1,4 @@
-" The particularly useful features of eclim, bound to hot-keys.
-
-" Handle missing imports
-nnoremap <silent> <buffer> <leader>i :JavaImport<cr>
-
-" Create a template in a new buffer for abstract/missing interface methods.
-nnoremap <silent> <buffer> <leader>a :JavaImpl<cr>
-
-" Look up the Java(D)oc for the thing under the cursor
-nnoremap <silent> <buffer> <leader>d :JavaDocPreview<cr>
-
-" Search
-nnoremap <silent> <buffer> <leader>j :JavaSearchContext<cr>
-
-" Reformat text
-nnoremap <silent> <buffer> <leader>f :JavaFormat<cr>
-
-" Add getter/setter
-nnoremap <silent> <buffer> <leader>g :JavaGet<cr>
-nnoremap <silent> <buffer> <leader>s :JavaSet<cr>
-
 """ Some macros of mine to insert things that are handy.
-""" These assume eclim is available.
-
-
-" cleanup and organize imports.
-if !exists("*aaron:cleanAndOrganizeImports")
-  function! aaron:cleanAndOrganizeImports()
-   execute 'set noignorecase'
-   execute 'JavaImportOrganize'
-   execute 'set ignorecase'
-  endfunction
-endif
-
-command! -nargs=0 -bar CleanAndOrganizeImports call aaron:cleanAndOrganizeImports()
-nnoremap <silent> <buffer> <leader>I :CleanAndOrganizeImports<cr>
 
 " Add a slf4j logger to the current class.
 if !exists("*aaron:addlogger")
@@ -46,10 +11,6 @@ if !exists("*aaron:addlogger")
     let filename = expand('%')
     let filename = substitute(filename, "\.java$", "", "g")
     let classname = substitute(filename, "^.*/", "", "g")
-
-    " Ensure that the appropriate classes are imported.
-    call eclim#java#import#Import('org.slf4j.Logger')
-    call eclim#java#import#Import('org.slf4j.LoggerFactory')
 
     " Move to the line immediately following the class definition.
     execute '1'
@@ -126,24 +87,4 @@ nnoremap <silent> <leader>] :Signature<CR>
 
 " ... or activate it if the user idles the cursor for 4 seconds.
 "au! CursorHold *.java nested exe "silent! ptag " . expand("<cword>")
-
-" Enable AutoComplPop for popup autocomplete and integrate w/ Eclim's completer function.
-" (see http://eclim.org/vim/code_completion.html)
-let g:acp_enableAtStartup=0 " Actually, leave this disabled for now.. it has icky bugs.
-let g:acp_completeoptPreview=1
-
-let g:acp_behaviorJavaEclimLength = 3
-function! MeetsForJavaEclim(context)
-  return g:acp_behaviorJavaEclimLength >= 0 &&
-        \ a:context =~ '\k\.\k\{' . g:acp_behaviorJavaEclimLength . ',}$'
-endfunction
-let g:acp_behavior = {
-    \ 'java': [{
-      \ 'command': "\<c-x>\<c-u>",
-      \ 'completefunc' : 'eclim#java#complete#CodeComplete',
-      \ 'meets'        : 'MeetsForJavaEclim',
-    \ }]
-  \ }
-
-"execute 'AcpEnable'
 
