@@ -1,3 +1,6 @@
+
+# Personal dotfiles repo
+
 This contains my vimrc, bashrc, and a bunch of handy
 scripts.  For best results, put aaron.git/bin in your $PATH.
 
