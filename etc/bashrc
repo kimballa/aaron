@@ -123,7 +123,7 @@ PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(histor
 function global_history {
   grep --text --color "$*" ~/.bash_permanent_history."$HOSTNAME" | tail -"$LINES"
 }
-alias gh='global_history'
+alias ghh='global_history'
 
 #umask 0002
 
