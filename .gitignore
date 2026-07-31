@@ -11,3 +11,4 @@ bin/android-studio.sh
 bin/tunnel-to-lims-prod-db.sh
 bin/xflux
 bin/zinc
+.DS_store
