@@ -9,4 +9,4 @@ if [ -z "$dt" ]; then
   exit $?
 fi
 
-"${bin}"/tots-inner "$@"
+"${bin}"/_tots-inner "$@"
