@@ -8,9 +8,9 @@ if [ -z "$ECLIPSE_HOME" ]; then
   # Set ECLIPSE_HOME ourselves by guessing.
   # Try to find eclipse
 
-  eclipsebin=`which eclipse`
-  eclipsebin=`readlink -f "$eclipsebin"`
-  ECLIPSE_HOME=`dirname "$eclipsebin"`
+  eclipsebin=$(which eclipse)
+  eclipsebin=$(readlink -f "$eclipsebin")
+  ECLIPSE_HOME=$(dirname "$eclipsebin")
 fi
 
 if [ -z "$ECLIPSE_HOME" ]; then
@@ -23,9 +23,9 @@ if [ ! -x "$ECLIPSE_HOME/eclimd" ]; then
   exit 1
 fi
 
-pushd "$WORKSPACE"
+pushd "$WORKSPACE" || exit
 echo "Starting eclimd"
-nohup $ECLIPSE_HOME/eclimd </dev/null 2>&1 >/dev/null &
-popd
+nohup "$ECLIPSE_HOME"/eclimd </dev/null >/dev/null 2>&1 &
+popd || exit
 echo ""
 

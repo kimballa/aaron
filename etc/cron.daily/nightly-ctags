@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd /home/aaron
+cd /home/aaron || exit
 sudo -H -u aaron /home/aaron/bin/make-all-ctags

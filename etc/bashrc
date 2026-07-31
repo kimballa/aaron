@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -83,7 +84,11 @@ esac
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if test -r ~/.dircolors; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 fi
@@ -101,19 +106,22 @@ alias egrep='egrep --color=auto'
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
+# shellcheck disable=SC1091 # only sourced if the file exists on this machine.
 if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
+# shellcheck disable=SC1091 # only sourced if the file exists on this machine.
 if [ -f /usr/share/bash-completion/bash_completion ]; then
   . /usr/share/bash-completion/bash_completion
 fi
 
 # Permanent bash history collection
-HOSTNAME=`hostname -s`
+HOSTNAME=$(hostname -s)
+# shellcheck disable=SC2089 # intentionally literal; expanded again when PROMPT_COMMAND runs.
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo $$ $USER \ "$(history 1)" >> ~/.bash_permanent_history.$HOSTNAME'
 function global_history {
-  grep --text --color "$*" ~/.bash_permanent_history.$HOSTNAME | tail -$LINES
+  grep --text --color "$*" ~/.bash_permanent_history."$HOSTNAME" | tail -"$LINES"
 }
 alias gh='global_history'
 
@@ -121,6 +129,7 @@ alias gh='global_history'
 
 if [ -e /usr/bin/virtualenvwrapper_bashrc ]; then
   export WORKON_HOME=$HOME/.virtualenvs
+  # shellcheck disable=SC1091 # only sourced if virtualenvwrapper is actually installed on this machine.
   source /usr/bin/virtualenvwrapper_bashrc
 fi
 
@@ -146,32 +155,32 @@ function manyterminals {
     wd=$2
   fi
 
-  if [ ! -z "$wd" ]; then
+  if [ -n "$wd" ]; then
     args="--working-directory=$wd"
-  elif [ ! -z "$host" ]; then
+  elif [ -n "$host" ]; then
     args=--command="ssh $host"
   else
-    wd=`pwd`
+    wd=$(pwd)
     args="--working-directory=$wd"
   fi
 
   # Ascertain whether we're in WSL or regular Linux.
-  uname -a | grep -i microsoft 2>&1 >/dev/null
-  if [ $? == 0 ]; then
+  if uname -a | grep -i microsoft > /dev/null 2>&1; then
     # WSL-specific invocation
-    local wslcwd=`pwd`
-    if [ ! -z "$wd" ]; then
+    local wslcwd
+    wslcwd=$(pwd)
+    if [ -n "$wd" ]; then
       wslcwd="$wd"
     fi
 
-    cd /mnt/c # cmd.exe must be started in a non-UNC Windows working dir.
+    cd /mnt/c || exit # cmd.exe must be started in a non-UNC Windows working dir.
     cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
     cmd.exe /c start cmd.exe /c wsl.exe --shell-type login --cd "$wslcwd"
 
     #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     if [ "$num_terminals" == "2" ]; then
-      cd "$wslcwd" # Don't forget to switch back
+      cd "$wslcwd" || exit # Don't forget to switch back
       exit # Don't create the next two terminals.
     fi
 
@@ -181,7 +190,7 @@ function manyterminals {
     #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     #cmd.exe /c start bash -c "cd $wslcwd && bash -i" 2>/dev/null &
     
-    cd "$wslcwd" # Don't forget to switch back
+    cd "$wslcwd" || exit # Don't forget to switch back
   else
     # Regular gnome-terminal in Linux.
     # bottom left
@@ -195,7 +204,7 @@ function manyterminals {
     fi
 
     # top midleft
-    gnome-terminal "$args" --geometry=100x46+$geo_offset+50 &
+    gnome-terminal "$args" --geometry=100x46+"$geo_offset"+50 &
 
     # top midright
     gnome-terminal "$args" --geometry=100x46+970+50 &
@@ -206,7 +215,8 @@ function manyterminals {
 
 # Local WSL command to open four terminals to the ubuntu VM each in a screen session.
 function 4xvm {
-  local mywd=`pwd`
+  local mywd
+  mywd=$(pwd)
   cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
   cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
   cmd.exe /c start bash -c "cd $mywd && mosh ubuntuvm tmux" 2>/dev/null
@@ -219,23 +229,27 @@ alias xxts='manyterminals 40 4' # small screen size
 alias xxt0='manyterminals 0 4' # 4:3 screen size (1600x1200)
 alias xxtt='manyterminals 0 2' # small screen size; only two terminals.
 
-alias gr='[ ! -z `git rev-parse --show-cdup` ] && cd `git rev-parse --show-cdup || pwd`'
+alias gr='[ -n "$(git rev-parse --show-cdup)" ] && cd "$(git rev-parse --show-cdup || pwd)"'
 alias pgr='git rev-parse --show-cdup || pwd'
 
-alias ifok='[[ "$?" == "0" ]] && $@'
+function ifok {
+  [[ "$?" == "0" ]] && "$@"
+}
 
 export PS1
 export EDITOR=vim
 export PATH=$HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$HOME/share/bin:$PATH
+# shellcheck disable=SC2090 # PROMPT_COMMAND is read by bash itself, not passed to subprocesses.
 export PROMPT_COMMAND
 
 # Do we have personal bash completion scripts? Source them all.
 compl_dir="$HOME/share/bash_completion.d"
-compl_dir=`readlink -f "$compl_dir"`
+compl_dir=$(readlink -f "$compl_dir")
 if [ -d "$compl_dir" ]; then
-  for filename in $(find "$compl_dir" -name "*.sh" 2>/dev/null); do
+  while read -r filename; do
+    # shellcheck disable=SC1090 # completion scripts are user-provided; path isn't known statically.
     source "$filename"
-  done
+  done < <(find "$compl_dir" -name "*.sh" 2>/dev/null)
 fi
 
 # Use TCP for postgresql connections to localhost, which checks passwords correctly,
@@ -243,14 +257,17 @@ fi
 #export PGHOST=localhost
 
 #PATH=$HOME/.rvm/bin:"$PATH" # Add RVM to PATH for scripting
-if [ -d "$HOME/.rvm" -a "$USER" == `basename $HOME` ]; then
+if [ -d "$HOME/.rvm" ] && [ "$USER" == "$(basename "$HOME")" ]; then
   # Ruby: Load RVM into a shell session *as a function* if available.
+  # shellcheck disable=SC1091 # only sourced if RVM is actually installed on this machine.
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 fi
 
 # Add nvm for nodejs.
 export NVM_DIR="$HOME/.nvm"
+# shellcheck disable=SC1091 # only sourced if nvm is actually installed on this machine.
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# shellcheck disable=SC1091 # only sourced if nvm is actually installed on this machine.
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # A function to alert you when a slow command completes.
@@ -287,6 +304,7 @@ export LSCOLORS='HxGxfxfxcxDxDxxcxcHcHx'
 
 # Any system-specific environment settings go in ~/.localbashrc
 # Added last so it can override anything here.
-if [ -e $HOME/.localbashrc ]; then
-  source $HOME/.localbashrc
+# shellcheck disable=SC1091 # only sourced if a machine-specific localbashrc exists.
+if [ -e "$HOME"/.localbashrc ]; then
+  source "$HOME"/.localbashrc
 fi

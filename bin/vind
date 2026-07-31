@@ -38,8 +38,8 @@ function cleanup {
 trap cleanup EXIT
 
 # Write the argsfile.
-echo "." >> $argsfile
-cat >>$argsfile <<EOF
+echo "." >> "$argsfile"
+cat >>"$argsfile" <<EOF
 \(
 -type
 f
@@ -48,28 +48,28 @@ f
 \)
 EOF
 if [ -e "$HOME/.vind-exclude" ]; then
-  echo "!" >> $argsfile
-  echo "\(" >> $argsfile
+  echo "!" >> "$argsfile"
+  echo "\(" >> "$argsfile"
   first=1
-  cat "$HOME/.vind-exclude" | while read line
+  while read -r line
   do
-    pattern=`echo "$line" | tr -d ' '`
-    if [ ! -z "$pattern" ]; then
+    pattern=$(echo "$line" | tr -d ' ')
+    if [ -n "$pattern" ]; then
       # For each line in .vind-exclude, add a '... -name "$pattern"' test to a list
       # of files to rule out.
       if [ "1" != "$first" ]; then
-        echo "-o" >> $argsfile
+        echo "-o" >> "$argsfile"
       fi
        # Add the line to the find arguments.
-       echo "-name" >> $argsfile
-       echo "$line" >> $argsfile
+       echo "-name" >> "$argsfile"
+       echo "$line" >> "$argsfile"
        first=0
      fi
-  done
-  echo "\)" >> $argsfile
+  done < "$HOME/.vind-exclude"
+  echo "\)" >> "$argsfile"
 fi
 
-cat >>$argsfile <<EOF
+cat >>"$argsfile" <<EOF
 \(
 -wholename
 "*/target/*"
@@ -85,7 +85,7 @@ EOF
 
 # Just show what we'd search for.
 if [ "1" == "$explain" ]; then
-  cat "$argsfile" | xargs echo find
+  xargs echo find < "$argsfile"
   exit 0
 fi
 
@@ -100,9 +100,9 @@ if [[ "$1" =~ .*/.* ]]; then
   fi
 fi
 
-cat "$argsfile" | xargs find > "$searchfile"
-files=`cat "$searchfile"`
-count=`cat "$searchfile" | wc -l`
+xargs find < "$argsfile" > "$searchfile"
+files=$(cat "$searchfile")
+count=$(wc -l < "$searchfile")
 
 offset="$2"
 
@@ -111,13 +111,13 @@ if [ "$count" == "0" ]; then
   exit 1
 elif [ "$count" == "1" ]; then
   exec vim "$files"
-elif [ ! -z "$offset" ]; then
+elif [ -n "$offset" ]; then
   # multiple options, but we can choose the offset-th entry
-  offset_file=`cat $searchfile | head "-$offset" | tail -1`
+  offset_file=$(head "-$offset" "$searchfile" | tail -1)
   exec vim "$offset_file"
 else
   echo "Too many matches:"
-  cat "$searchfile" | cat -n -
+  cat -n - < "$searchfile"
   exit 1
 fi
 

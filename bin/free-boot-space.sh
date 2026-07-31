@@ -9,7 +9,7 @@ if [ "$1" == "--help" ]; then
 fi
 
 echo "Current Linux version:"
-echo "Linux "`uname -r`
+echo "Linux $(uname -r)"
 echo '-----------------------------'
 echo ''
 

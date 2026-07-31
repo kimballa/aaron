@@ -4,11 +4,11 @@
 
 set -e
 
-bin=`readlink -f "$0"`
-bin=`dirname "${bin}"`
-bin=`cd "${bin}" && pwd`
+bin=$(readlink -f "$0")
+bin=$(dirname "${bin}")
+bin=$(cd "${bin}" && pwd)
 
-etcdir=`cd "${bin}/../etc" && pwd`
+etcdir=$(cd "${bin}/../etc" && pwd)
 
 makesafelink() {
   # Three arguments:
@@ -19,50 +19,52 @@ makesafelink() {
   # This creates a symlink from original -> target.
   # If original already exists, moves it to backup.
   # If backup already exists, gives up.
+  # If original is already a symlink but is broken (dangling), it is
+  # repaired to point at target instead of being left alone.
   original=$1
   backup=$2
   target=$3
-  if [ ! -L $original ]; then
+  if [ ! -L "$original" ]; then
     # original is not already a symlink
-    if [ ! -e $original ]; then
+    if [ ! -e "$original" ]; then
       # original doesn't exist. Make the link.
         echo "Setting $original as symlink -> $target"
-        ln -s $target $original
-    elif [ -f $original ]; then
-      if [ ! -e $backup ]; then
+        ln -s "$target" "$original"
+    elif [ -f "$original" ]; then
+      if [ ! -e "$backup" ]; then
         echo "Moving $original to $backup"
-        mv $original $backup
+        mv "$original" "$backup"
         echo "Setting $original as symlink -> $target"
-        ln -s $target $original
+        ln -s "$target" "$original"
       else
         echo "Already have a $backup Giving up."
       fi
     else
       echo "$original not a file? Not changing it."
     fi
+  elif [ ! -e "$original" ]; then
+    # original is a symlink, but it's broken (dangling). Repair it.
+    echo "$original is a broken symlink. Repairing it to point -> $target"
+    rm "$original"
+    ln -s "$target" "$original"
   else
     echo "$original is already a symlink. Not changing it."
   fi
 }
 
 echo "Installing bash config..."
-makesafelink $HOME/.bashrc $HOME/.localbashrc ${etcdir}/bashrc
-makesafelink $HOME/.vind-exclude $HOME/.vind-exclude.orig ${etcdir}/vind-exclude
-makesafelink $HOME/.dircolors $HOME/.dircolors.orig ${etcdir}/dircolors
+makesafelink "$HOME"/.bashrc "$HOME"/.localbashrc "${etcdir}"/bashrc
+makesafelink "$HOME"/.vind-exclude "$HOME"/.vind-exclude.orig "${etcdir}"/vind-exclude
+makesafelink "$HOME"/.dircolors "$HOME"/.dircolors.orig "${etcdir}"/dircolors
 
 echo ""
-if [ ! -d "${etcdir}/../../vimscripts" ]; then
-  echo "Warning: the vimscripts.git companion repo should be a sibling of this aaron.git repo."
-  echo "Vim configuration cannot be deployed without this in place. (Skipping)"
-else
-  echo "Installing vim config..."
-  makesafelink $HOME/.vimrc $HOME/.vimrc.orig ${etcdir}/vimrc
-  makesafelink $HOME/.vim $HOME/.vim.orig ${etcdir}/vim
-fi
+echo "Installing vim config..."
+makesafelink "$HOME"/.vimrc "$HOME"/.vimrc.orig "${etcdir}"/vimrc
+makesafelink "$HOME"/.vim "$HOME"/.vim.orig "${etcdir}"/vim
 
 echo ""
 echo "Installing other personal config files..."
-makesafelink $HOME/.gitconfig $HOME/.gitconfig.orig ${etcdir}/gitconfig
+makesafelink "$HOME"/.gitconfig "$HOME"/.gitconfig.orig "${etcdir}"/gitconfig
 
 # Make subdirectories in home for capabilities I use.
 # These start empty, but are referenced in my bashrc.
@@ -76,7 +78,7 @@ mkdir -p "$HOME/.ssh"
 
 makesafelink "$HOME/bin" "$HOME/bin.orig" "${bin}"
 completion_dir="${etcdir}/../bash_completion.d"
-completion_dir=`readlink -f "${completion_dir}"`
+completion_dir=$(readlink -f "${completion_dir}")
 makesafelink "$HOME/share/bash_completion.d" "$HOME/share/bash_completion.d.orig" "${completion_dir}"
 
 echo ""

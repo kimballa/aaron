@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for x in `ls /etc/init.d/hadoop-0.20-*`; do
-  if [ -x $x ]; then
-    echo $x
-    $x "$@"
+for x in /etc/init.d/hadoop-0.20-*; do
+  if [ -x "$x" ]; then
+    echo "$x"
+    "$x" "$@"
   fi
 done

@@ -6,4 +6,4 @@
 # Syntactically equivalent to: vim `which <filename>`
 
 filename=$1
-exec vim `which "$filename"`
+exec vim "$(which "$filename")"

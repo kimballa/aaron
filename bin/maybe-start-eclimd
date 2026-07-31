@@ -6,17 +6,17 @@ if [ -f "$HOME/.noeclim" ]; then
 fi
 
 # If it's installed, start a zinc scalac server if we haven't already.
-some_zinc=`which zinc`
-if [ ! -z "$some_zinc" ]; then
-  /usr/bin/env zinc -start 2>&1 >/dev/null
+some_zinc=$(which zinc)
+if [ -n "$some_zinc" ]; then
+  { /usr/bin/env zinc -start >/dev/null; } 2>&1
 fi
 
-isrunning=`ps -ef | grep /eclimd | grep -v grep`
-eclipse_running=`ps -ef | grep /eclipse | grep -v grep`
-if [ ! -z "$CANCEL_ECLIMD" ]; then
+isrunning=$(pgrep -f /eclimd)
+eclipse_running=$(pgrep -f /eclipse)
+if [ -n "$CANCEL_ECLIMD" ]; then
   exit 0
 fi
-if [ -z "$isrunning" -a -z "$eclipse_running" ]; then
+if [ -z "$isrunning" ] && [ -z "$eclipse_running" ]; then
   start-eclimd
 fi
 

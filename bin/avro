@@ -13,6 +13,6 @@ else
   JAVA_EXEC="$JAVA_HOME/bin/java"
 fi
 
-AVRO_JAR=`ls -1 "$AVRO_HOME"/avro-tools-* | head -1`
+AVRO_JAR=$(find "$AVRO_HOME" -maxdepth 1 -name 'avro-tools-*' | sort | head -1)
 
 exec "$JAVA_EXEC" -jar "$AVRO_JAR" "$@"

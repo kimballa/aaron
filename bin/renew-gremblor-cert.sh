@@ -14,7 +14,7 @@
 # Change: System > Settings > HTTPS Server Certificate
 # Disable port 80 forwarding.
 
-cd $HOME/src/ext/letsencrypt
+cd "$HOME/src/ext/letsencrypt" || exit
 ./letsencrypt-auto certonly --standalone --expand --renew-by-default --agree-tos \
     --standalone-supported-challenges http-01 \
     -d vpn.gremblor.com
