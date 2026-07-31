@@ -26,9 +26,11 @@ symlink that's gone broken (e.g., because this repo moved) is repaired.
 
 Machine-specific bashrc elements go in ~/.localbashrc.
 
-If you have an old installation that still links to the deprecated,
-separate 'vimscripts' repo, run `bin/migrate-vim` to repoint those links
-at the vim/ directory in this repo.
+If you have an old installation, run `make upgrade` (or `bin/upgrade-etc`
+directly) to migrate it to the current layout. This repoints any links
+that still point to the deprecated, separate 'vimscripts' repo at the
+vim/ directory in this repo, and moves the bash_completion.d symlink to
+its new XDG-compliant location under ~/.local/share.
 
 ## Linting
 

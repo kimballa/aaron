@@ -17,5 +17,5 @@ This used to be the separate vimscripts.git repo. That repo is now deprecated;
 its contents live here, in the vim/ subdirectory of aaron.git.
 
 If your machine still has ~/.vim or ~/.vimrc symlinked into the old
-vimscripts.git checkout, run `bin/migrate-vim` (from aaron.git) to repoint
+vimscripts.git checkout, run `bin/upgrade-etc` (from aaron.git) to repoint
 them at this directory.

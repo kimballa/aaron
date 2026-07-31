@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#
+# Migrate an old installation of this repo's dotfiles to the current
+# layout. Handles two known migrations:
+#
+# 1. ~/.vim and ~/.vimrc symlinks that still point into the old,
+#    now-deprecated vimscripts.git companion repo are repointed at the
+#    vim/ directory that now lives inside this repo.
+# 2. The bash_completion.d symlink that used to live at
+#    ~/share/bash_completion.d is moved to ~/.local/share/bash_completion.d,
+#    to better comply with the XDG base directory layout.
+
+set -e
+
+bin=$(readlink -f "$0")
+bin=$(dirname "${bin}")
+bin=$(cd "${bin}" && pwd)
+
+etcdir=$(cd "${bin}/../etc" && pwd)
+
+repoint_link() {
+  # Two arguments:
+  # original (e.g., $HOME/.vim)
+  # target (e.g., $etcdir/vim) - where the symlink should point instead.
+  #
+  # If $original is a symlink pointing into the old vimscripts.git repo,
+  # repoint it at $target. Otherwise, leave it alone.
+  original=$1
+  target=$2
+
+  if [ ! -L "$original" ]; then
+    echo "$original is not a symlink. Skipping."
+    return
+  fi
+
+  current_target=$(readlink "$original")
+  case "$current_target" in
+    */vimscripts/*|*/vimscripts)
+      echo "$original points into the old vimscripts.git repo ($current_target)."
+      echo "Repointing $original -> $target"
+      rm "$original"
+      ln -s "$target" "$original"
+      ;;
+    *)
+      echo "$original does not point into vimscripts.git. Not changing it."
+      ;;
+  esac
+}
+
+relocate_link() {
+  # Two arguments:
+  # old_path (e.g., $HOME/share/bash_completion.d) - old symlink location.
+  # new_path (e.g., $HOME/.local/share/bash_completion.d) - where it should live now.
+  #
+  # If $old_path is a symlink, move it to $new_path (preserving its
+  # target). If $new_path already exists, leave $old_path alone.
+  old_path=$1
+  new_path=$2
+
+  if [ ! -L "$old_path" ]; then
+    echo "$old_path is not a symlink. Skipping."
+    return
+  fi
+
+  if [ -e "$new_path" ]; then
+    echo "$new_path already exists. Not touching $old_path."
+    return
+  fi
+
+  target=$(readlink "$old_path")
+  echo "Moving symlink $old_path -> $new_path (target: $target)"
+  mkdir -p "$(dirname "$new_path")"
+  ln -s "$target" "$new_path"
+  rm "$old_path"
+}
+
+repoint_link "$HOME/.vim" "${etcdir}/vim"
+repoint_link "$HOME/.vimrc" "${etcdir}/vimrc"
+
+relocate_link "$HOME/share/bash_completion.d" "$HOME/.local/share/bash_completion.d"
+
+echo ""
+echo "Done."

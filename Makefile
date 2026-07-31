@@ -20,4 +20,4 @@ install:
 	bin/deploy-etc
 
 upgrade:
-	bin/migrate-vim
+	bin/upgrade-etc
