@@ -1,9 +1,24 @@
 [user]
-	name = Aaron Kimball
-	email = akimball83@gmail.com
+  name = Aaron Kimball
+  email = akimball83@gmail.com
 [color]
   ui = true
 [core]
   editor = vim
-[credential]
-  helper = store
+  whitespace = trailing-space,space-before-tab
+[diff]
+  mnemonicprefix = true
+[push]
+  default = simple
+[rerere]
+  enabled = true
+[fetch]
+  prune = true
+[init]
+  defaultBranch = main
+
+# Machine/work-specific overrides (email, corp includes, LFS, etc.) live in
+# ~/.gitconfig.local, which is not tracked by this repo. This include is a
+# silent no-op on machines where that file doesn't exist.
+[include]
+  path = ~/.gitconfig.local

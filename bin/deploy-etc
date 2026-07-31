@@ -56,6 +56,7 @@ echo "Installing bash config..."
 makesafelink "$HOME"/.bashrc "$HOME"/.localbashrc "${etcdir}"/bashrc
 makesafelink "$HOME"/.vind-exclude "$HOME"/.vind-exclude.orig "${etcdir}"/vind-exclude
 makesafelink "$HOME"/.dircolors "$HOME"/.dircolors.orig "${etcdir}"/dircolors
+makesafelink "$HOME"/.ctags "$HOME"/.ctags.orig "${etcdir}"/ctags
 
 echo ""
 echo "Installing vim config..."
