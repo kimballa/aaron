@@ -1,20 +1,40 @@
 
 # Personal dotfiles repo
 
-This contains my vimrc, bashrc, and a bunch of handy
-scripts.  For best results, put aaron.git/bin in your $PATH.
+This contains my vimrc, bashrc, vim plugins/config (in vim/), and a bunch
+of handy scripts.  For best results, put aaron.git/bin in your $PATH.
 
-Running the 'deploy-etc' script will rewrite .bashrc and
-.vimrc to point to the files in etc/ in this directory
-(after backing them up, of course!).
+## Installation
+
+Install prerequisites via `apt` (or your platform's equivalent):
+
+```bash
+sudo apt-get install shellcheck exuberant-ctags
+```
+
+Then run:
+
+```bash
+make install
+```
+
+This runs the `deploy-etc` script, which symlinks .bashrc, .vimrc, .vim,
+and other config files to point at the files in etc/ and vim/ in this
+directory (after backing up any pre-existing files, of course!). It is
+safe to run repeatedly: existing correct symlinks are left alone, and any
+symlink that's gone broken (e.g., because this repo moved) is repaired.
 
 Machine-specific bashrc elements go in ~/.localbashrc.
 
-This is most useful in conjunction with my 'vimscripts'
-repo, which contains the rest of the vim plugins and etc.
-that I use.
+If you have an old installation that still links to the deprecated,
+separate 'vimscripts' repo, run `bin/migrate-vim` to repoint those links
+at the vim/ directory in this repo.
 
-### Renamed branch
+## Linting
+
+Run `make lint` to shellcheck all the scripts in this repo.
+
+## Renamed branch
 
 The branch was renamed from `master` to `main` in 2025. For 
 deployments that have not yet updated, follow these steps:
