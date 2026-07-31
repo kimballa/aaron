@@ -238,12 +238,12 @@ function ifok {
 
 export PS1
 export EDITOR=vim
-export PATH=$HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$HOME/share/bin:$PATH
+export PATH="$HOME/bin:$HOME/src/aaron/bin:$HOME/.local/bin:$HOME/share/bin:$HOME/.local/share/bin:$PATH"
 # shellcheck disable=SC2090 # PROMPT_COMMAND is read by bash itself, not passed to subprocesses.
 export PROMPT_COMMAND
 
 # Do we have personal bash completion scripts? Source them all.
-compl_dir="$HOME/share/bash_completion.d"
+compl_dir="$HOME/.local/share/bash_completion.d"
 compl_dir=$(readlink -f "$compl_dir")
 if [ -d "$compl_dir" ]; then
   while read -r filename; do

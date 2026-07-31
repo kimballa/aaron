@@ -71,15 +71,15 @@ makesafelink "$HOME"/.gitconfig "$HOME"/.gitconfig.orig "${etcdir}"/gitconfig
 echo ""
 echo "Setting up home directories..."
 set -x
-mkdir -p "$HOME/share/bin"
-mkdir -p "$HOME/share/bash_completion.d"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.local/share/bin"
 mkdir -p "$HOME/.ssh"
 { set +x; } 2>/dev/null
 
 makesafelink "$HOME/bin" "$HOME/bin.orig" "${bin}"
 completion_dir="${etcdir}/../bash_completion.d"
 completion_dir=$(readlink -f "${completion_dir}")
-makesafelink "$HOME/share/bash_completion.d" "$HOME/share/bash_completion.d.orig" "${completion_dir}"
+makesafelink "$HOME/.share/bash_completion.d" "$HOME/.share/bash_completion.d.orig" "${completion_dir}"
 
 echo ""
 echo "Done. Welcome home!"
