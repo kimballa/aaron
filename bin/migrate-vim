@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#
+# Detect ~/.vim and ~/.vimrc symlinks that still point into the old,
+# now-deprecated vimscripts.git companion repo, and repoint them at the
+# vim/ directory that now lives inside this repo.
+
+set -e
+
+bin=$(readlink -f "$0")
+bin=$(dirname "${bin}")
+bin=$(cd "${bin}" && pwd)
+
+etcdir=$(cd "${bin}/../etc" && pwd)
+
+migrate_link() {
+  # Two arguments:
+  # original (e.g., $HOME/.vim)
+  # target (e.g., $etcdir/vim) - where the symlink should point instead.
+  original=$1
+  target=$2
+
+  if [ ! -L "$original" ]; then
+    echo "$original is not a symlink. Skipping."
+    return
+  fi
+
+  current_target=$(readlink "$original")
+  case "$current_target" in
+    */vimscripts/*|*/vimscripts)
+      echo "$original points into the old vimscripts.git repo ($current_target)."
+      echo "Repointing $original -> $target"
+      rm "$original"
+      ln -s "$target" "$original"
+      ;;
+    *)
+      echo "$original does not point into vimscripts.git. Not changing it."
+      ;;
+  esac
+}
+
+migrate_link "$HOME/.vim" "${etcdir}/vim"
+migrate_link "$HOME/.vimrc" "${etcdir}/vimrc"
+
+echo ""
+echo "Done."
