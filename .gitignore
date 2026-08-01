@@ -11,4 +11,5 @@ bin/android-studio.sh
 bin/tunnel-to-lims-prod-db.sh
 bin/xflux
 bin/zinc
+bin/teensy_loader_cli
 .DS_store
