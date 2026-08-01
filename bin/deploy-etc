@@ -67,6 +67,21 @@ echo ""
 echo "Installing other personal config files..."
 makesafelink "$HOME"/.gitconfig "$HOME"/.gitconfig.orig "${etcdir}"/gitconfig
 
+echo ""
+echo "Installing Claude Code skills and agents..."
+claudedir=$(cd "${bin}/../claude" && pwd)
+mkdir -p "$HOME/.claude/skills" "$HOME/.claude/agents"
+for item in "${claudedir}"/skills/*/; do
+  [ -d "$item" ] || continue
+  name=$(basename "$item")
+  makesafelink "$HOME/.claude/skills/$name" "$HOME/.claude/skills/$name.orig" "${claudedir}/skills/$name"
+done
+for item in "${claudedir}"/agents/*; do
+  [ -f "$item" ] || continue
+  name=$(basename "$item")
+  makesafelink "$HOME/.claude/agents/$name" "$HOME/.claude/agents/$name.orig" "${claudedir}/agents/$name"
+done
+
 # Make subdirectories in home for capabilities I use.
 # These start empty, but are referenced in my bashrc.
 echo ""

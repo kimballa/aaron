@@ -1,8 +1,9 @@
 
 # Personal dotfiles repo
 
-This contains my vimrc, bashrc, vim plugins/config (in vim/), and a bunch
-of handy scripts.  For best results, put aaron.git/bin in your $PATH.
+This contains my vimrc, bashrc, vim plugins/config (in vim/), Claude Code
+skills/agents (in claude/), and a bunch of handy scripts.  For best results,
+put aaron.git/bin in your $PATH.
 
 ## Installation
 
@@ -20,9 +21,13 @@ make install
 
 This runs the `deploy-etc` script, which symlinks .bashrc, .vimrc, .vim,
 and other config files to point at the files in etc/ and vim/ in this
-directory (after backing up any pre-existing files, of course!). It is
-safe to run repeatedly: existing correct symlinks are left alone, and any
-symlink that's gone broken (e.g., because this repo moved) is repaired.
+directory (after backing up any pre-existing files, of course!). It also
+symlinks each skill/agent in claude/skills/ and claude/agents/ into
+~/.claude/skills/ and ~/.claude/agents/, individually, so any skills that
+live only in ~/.claude (e.g. work-specific ones, not tracked here since
+this repo is public) are left untouched. It is safe to run repeatedly:
+existing correct symlinks are left alone, and any symlink that's gone
+broken (e.g., because this repo moved) is repaired.
 
 Machine-specific bashrc elements go in ~/.localbashrc.
 
