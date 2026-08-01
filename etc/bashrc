@@ -302,6 +302,10 @@ fi
 # See `LSCOLORS` section in ls(1)
 export LSCOLORS='HxGxfxfxcxDxDxxcxcHcHx'
 
+if [ -d "$HOME/.cargo" ]; then
+  source "$HOME/.cargo/env"
+fi
+
 # Any system-specific environment settings go in ~/.localbashrc
 # Added last so it can override anything here.
 # shellcheck disable=SC1091 # only sourced if a machine-specific localbashrc exists.
