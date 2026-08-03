@@ -116,6 +116,12 @@ if [ -f /usr/share/bash-completion/bash_completion ]; then
   . /usr/share/bash-completion/bash_completion
 fi
 
+# macOS + Homebrew: bash-completion (v1, for the system bash 3.2)
+# shellcheck disable=SC1091 # only sourced if the file exists on this machine.
+if [ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
+  . /opt/homebrew/etc/profile.d/bash_completion.sh
+fi
+
 # Permanent bash history collection
 HOSTNAME=$(hostname -s)
 # shellcheck disable=SC2089 # intentionally literal; expanded again when PROMPT_COMMAND runs.
