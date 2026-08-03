@@ -245,11 +245,11 @@ export PROMPT_COMMAND
 # Do we have personal bash completion scripts? Source them all.
 compl_dir="$HOME/.local/share/bash_completion.d"
 compl_dir=$(readlink -f "$compl_dir")
-if [ -d "$compl_dir" ]; then
+if [ -d "$compl_dir/" ]; then
   while read -r filename; do
     # shellcheck disable=SC1090 # completion scripts are user-provided; path isn't known statically.
     source "$filename"
-  done < <(find "$compl_dir" -name "*.sh" 2>/dev/null)
+  done < <(find "$compl_dir/" -name "*.sh" 2>/dev/null)
 fi
 
 # Use TCP for postgresql connections to localhost, which checks passwords correctly,
