@@ -1,5 +1,12 @@
 # bash completion for GNU make                             -*- shell-script -*-
 
+# The case patterns below (e.g. -!(-*)[foW]) use extglob syntax, which must
+# be enabled at parse time or bash fails with a syntax error while sourcing
+# this file. The bash-completion framework normally enables this itself, but
+# we can't rely on that when sourcing this file standalone (e.g. on macOS).
+_make_completion_prev_extglob=$(shopt -p extglob)
+shopt -s extglob
+
 _make_target_extract_script()
 {
     local mode="$1"
@@ -166,5 +173,8 @@ _make()
     fi
 } &&
     complete -F _make make gmake gnumake pmake colormake bmake
+
+eval "$_make_completion_prev_extglob"
+unset _make_completion_prev_extglob
 
 # ex: filetype=sh
