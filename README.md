@@ -11,13 +11,12 @@ Install prerequisites via `apt` (or your platform's equivalent):
 
 ```bash
 sudo bin/install-preferred-packages.sh
-sudo apt-get install shellcheck exuberant-ctags
 ```
 
-For OS X, also:
+Or for OS X:
 
 ```bash
-brew install bash-completion
+sudo bin/install-preferred-packages-osx.sh
 ```
 
 Then run:

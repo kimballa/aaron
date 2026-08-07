@@ -311,6 +311,7 @@ export LSCOLORS='HxGxfxfxcxDxDxxcxcHcHx'
 
 # Load rust package environment
 if [ -d "$HOME/.cargo" ]; then
+  # shellcheck disable=SC1091
   source "$HOME/.cargo/env"
 fi
 
