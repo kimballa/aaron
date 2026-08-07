@@ -16,7 +16,7 @@ sudo bin/install-preferred-packages.sh
 Or for OS X:
 
 ```bash
-sudo bin/install-preferred-packages-osx.sh
+bin/install-preferred-packages-osx.sh
 ```
 
 Then run:
