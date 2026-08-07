@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# 
+# Use `git ls-files` to enumerate all files in the current subtree of the git repo
+# that are not excluded by gitignore.
+
+git ls-files --cached --others --exclude-standard "$@"
