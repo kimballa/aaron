@@ -10,10 +10,11 @@ put aaron.git/bin in your $PATH.
 Install prerequisites via `apt` (or your platform's equivalent):
 
 ```bash
+sudo bin/install-preferred-packages.sh
 sudo apt-get install shellcheck exuberant-ctags
 ```
 
-For OS X:
+For OS X, also:
 
 ```bash
 brew install bash-completion
