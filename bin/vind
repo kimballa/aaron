@@ -106,6 +106,9 @@ count=$(wc -l < "$searchfile")
 
 offset="$2"
 
+# Trim leading/trailing whitespace from count.
+count=$(echo "$count" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
 if [ "$count" == "0" ]; then
   echo "No match!"
   exit 1
