@@ -10,6 +10,7 @@
   mnemonicprefix = true
 [push]
   default = simple
+	autoSetupRemote = true
 [rerere]
   enabled = true
 [fetch]
@@ -24,3 +25,8 @@
 # silent no-op on machines where that file doesn't exist.
 [include]
   path = ~/.gitconfig.local
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
