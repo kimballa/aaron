@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# Run this after an issue/PR has landed on the main branch, while still on the
+# feature branch. Fetches origin, fast-forwards the main branch, and force-deletes
+# the feature branch (squash-rebased branches aren't "merged" from git's point of view,
+# so `-d` won't allow it).
+
+set -e
+
+branch="$(git symbolic-ref --short HEAD)"
+
+case "$branch" in
+    main|master|dev)
+        echo "issue-closed: refusing to run from '$branch'; check out your feature branch first." >&2
+        exit 1
+        ;;
+esac
+
+if [ -n "$(git status --porcelain)" ]; then
+    echo "issue-closed: branch '$branch' has uncommitted changes; aborting." >&2
+    exit 1
+fi
+
+# A repo should only have one of these; find whichever one this repo actually uses.
+mainbranch=""
+for candidate in main master dev; do
+    if git show-ref --verify --quiet "refs/heads/$candidate"; then
+        if [ -n "$mainbranch" ]; then
+            echo "issue-closed: found both '$mainbranch' and '$candidate' branches; ambiguous, aborting." >&2
+            exit 1
+        fi
+        mainbranch="$candidate"
+    fi
+done
+
+if [ -z "$mainbranch" ]; then
+    echo "issue-closed: no main/master/dev branch found; aborting." >&2
+    exit 1
+fi
+
+sha1="$(git rev-parse --short HEAD)"
+
+git fetch origin
+
+old_main_sha="$(git rev-parse "$mainbranch")"
+git checkout "$mainbranch"
+git merge --ff-only "origin/$mainbranch"
+new_main_sha="$(git rev-parse "$mainbranch")"
+
+if [ "$old_main_sha" = "$new_main_sha" ]; then
+    echo "Nothing merged to $mainbranch; will not delete feature branch $branch" >&2
+    exit 1
+fi
+
+git branch -D "$branch"
+
+echo "Deleted feature branch '$branch'; to get it back, run 'git branch $branch $sha1'"
