@@ -1,0 +1,37 @@
+// © Copyright 2026 Aaron Kimball
+//
+// markdownlint-cli2 configuration for this project's Markdown.
+// Invoked by `make lint`.
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/main/schema/markdownlint-cli2-config-schema.json",
+  "config": {
+    "default": true,
+    // this project favors long, soft-wrapped prose lines over hard-wrapping at a fixed
+    // column; enforcing a line-length cap would just produce noisy diffs.
+    "MD013": false,
+    "MD041": false,
+    // Duplicate subheadings are allowed.
+    "MD024": false,
+    // Hand-aligned tables with wide characters (arrows) trip the aligned-column check.
+    "MD060": false,
+    // Match this repo's already-established conventions so `fix: true` converges
+    // instead of fighting the majority style.
+    "MD004": {
+      "style": "asterisk"
+    },
+    "MD048": {
+      "style": "backtick"
+    },
+    // Asterisk (not underscore) emphasis/strong avoids colliding with the underscores
+    // in inline snake_case identifiers.
+    "MD049": {
+      "style": "asterisk"
+    },
+    "MD050": {
+      "style": "asterisk"
+    }
+  },
+  "gitignore": true,
+  "noBanner": true,
+  "noProgress": true
+}

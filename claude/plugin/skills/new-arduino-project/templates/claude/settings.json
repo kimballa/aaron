@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make *)",
+      "Bash(echo *)",
+      "Bash(ls *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(git diff *)",
+      "Bash(git -C * diff *)",
+      "Bash(git show *)",
+      "Bash(git status *)",
+      "Bash(git help *)",
+      "Bash(markdownlint-cli2 *.md)",
+      "Bash(markdownlint-cli2 --fix *.md)",
+      "Read(//home/aaron/.arduino15/packages/{{CORE_PACKAGE}}/**)",
+      "Read(//home/aaron/share/arduino-install/include/**)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

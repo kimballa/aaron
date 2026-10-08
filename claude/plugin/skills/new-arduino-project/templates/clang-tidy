@@ -1,0 +1,31 @@
+# (c) Copyright 2026 Aaron Kimball
+#
+# clang-tidy configuration. Run via `make lint-tidy`, which analyzes the host-clean
+# subset of the firmware (SUT_SRCS in the Makefile) using the same flags and mock
+# <Arduino.h> environment as the host unit tests.
+#
+# https://clang.llvm.org/extra/clang-tidy/checks/list.html
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  misc-*,
+  readability-braces-around-statements,
+  readability-container-size-empty,
+  readability-redundant-*,
+  readability-misleading-indentation,
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-using,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -misc-use-anonymous-namespace,
+  -performance-enum-size,
+  -misc-include-cleaner
+
+# Only report diagnostics from our own headers, not the mock environment or std lib.
+HeaderFilterRegex: '(^|/)src/'
+FormatStyle: none

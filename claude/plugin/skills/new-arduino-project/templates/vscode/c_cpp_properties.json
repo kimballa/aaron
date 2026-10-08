@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "name": "{{BOARD_SHORT_NAME}}",
+      "includePath": [
+        "${workspaceFolder}/**",
+        {{INCLUDE_PATHS}}
+      ],
+      "defines": [
+        {{DEFINES}}
+      ],
+      "compilerPath": "{{COMPILER_PATH}}",
+      "cStandard": "{{C_STD}}",
+      "cppStandard": "{{CPP_STD}}",
+      "intelliSenseMode": "{{INTELLISENSE_MODE}}"
+    }
+  ],
+  "version": 4
+}

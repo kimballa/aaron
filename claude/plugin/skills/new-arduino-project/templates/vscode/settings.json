@@ -1,0 +1,21 @@
+{
+  "files.associations": {
+    "*.ino": "cpp",
+    "*.h": "cpp"
+  },
+  "editor.defaultFormatter": "xaver.clang-format",
+  "arduino.useArduinoCli": true,
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "vim.textwidth": 100,
+  "editor.wordWrapColumn": 100,
+  "clang-format.assumeFilename": "${workspaceRoot}/.clang-format",
+  "prettier.enable": false,
+  "C_Cpp.default.compilerPath": "{{COMPILER_PATH}}",
+  "C_Cpp.default.cppStandard": "{{CPP_STD}}",
+  "C_Cpp.default.intelliSenseMode": "{{INTELLISENSE_MODE}}",
+  "makefile.configureOnOpen": true,
+  "files.exclude": {
+    "**/*.o": true
+  }
+}
