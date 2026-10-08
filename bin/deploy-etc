@@ -71,9 +71,10 @@ echo ""
 echo "Installing Claude Code plugin..."
 # A plugin dir under ~/.claude/skills/ auto-loads as <name>@skills-dir, so
 # symlinking the whole plugin means new skills and agents deploy automatically.
-claudedir=$(cd "${bin}/../claude/plugin" && pwd)
+claudedir=$(cd "${bin}/../claude" && pwd)
 mkdir -p "$HOME/.claude/skills"
-makesafelink "$HOME/.claude/skills/aaron" "$HOME/.claude/skills/aaron.orig" "${claudedir}"
+makesafelink "$HOME/.claude/skills/aaron" "$HOME/.claude/skills/aaron.orig" "${claudedir}/plugin"
+makesafelink "$HOME/.claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md.orig" "${claudedir}/CLAUDE.md"
 
 # Make subdirectories in home for capabilities I use.
 # These start empty, but are referenced in my bashrc.
