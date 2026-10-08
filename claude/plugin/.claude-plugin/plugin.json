@@ -1,0 +1,10 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "aaron",
+  "version": "0.1.0",
+  "description": "Aaron's personal skills and agents",
+  "author": {
+    "name": "Aaron Kimball",
+    "email": "akimball83@gmail.com"
+  }
+}
