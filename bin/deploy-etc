@@ -54,6 +54,8 @@ makesafelink() {
 
 echo "Installing bash config..."
 makesafelink "$HOME"/.bashrc "$HOME"/.localbashrc "${etcdir}"/bashrc
+# Login shells read .bash_profile, not .bashrc; point it at .bashrc.
+makesafelink "$HOME"/.bash_profile "$HOME"/.bash_profile.orig "$HOME"/.bashrc
 makesafelink "$HOME"/.vind-exclude "$HOME"/.vind-exclude.orig "${etcdir}"/vind-exclude
 makesafelink "$HOME"/.dircolors "$HOME"/.dircolors.orig "${etcdir}"/dircolors
 makesafelink "$HOME"/.ctags "$HOME"/.ctags.orig "${etcdir}"/ctags
