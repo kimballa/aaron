@@ -34,6 +34,7 @@ brew install \
     fd \
     git \
     git-gui \
+    git-lfs \
     htop \
     jq \
     less \
@@ -54,6 +55,10 @@ brew install \
     wget
 
 set +x
+
+echo "Setting up git lfs"
+/opt/homebrew/bin/git lfs install
+/opt/homebrew/bin/git lfs version
 
 # Install nodejs
 echo "Checking for node..."
