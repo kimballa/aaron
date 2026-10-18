@@ -9,7 +9,6 @@
       "Bash(cat *)",
       "Bash(grep *)",
       "Bash(git diff *)",
-      "Bash(git -C * diff *)",
       "Bash(git show *)",
       "Bash(git status *)",
       "Bash(git help *)",
