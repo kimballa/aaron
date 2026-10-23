@@ -1,0 +1,15 @@
+{
+  "name": "aaron",
+  "version": "0.1.0",
+  "description": "Aaron's personal skills, shared by Claude Code and Codex.",
+  "author": {
+    "name": "Aaron Kimball"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Aaron (Personal)",
+    "shortDescription": "Personal skills for projects outside Warp.",
+    "developerName": "Aaron Kimball",
+    "category": "Productivity"
+  }
+}

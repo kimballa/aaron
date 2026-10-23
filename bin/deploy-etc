@@ -78,6 +78,15 @@ mkdir -p "$HOME/.claude/skills"
 makesafelink "$HOME/.claude/skills/aaron" "$HOME/.claude/skills/aaron.orig" "${claudedir}/plugin"
 makesafelink "$HOME/.claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md.orig" "${claudedir}/CLAUDE.md"
 
+if command -v codex >/dev/null 2>&1; then
+  echo ""
+  echo "Installing Codex plugin..."
+  codex plugin marketplace add "${bin}/.."
+  codex plugin add aaron@aaron-personal
+else
+  echo "Codex is not installed; skipping Codex plugin."
+fi
+
 # Make subdirectories in home for capabilities I use.
 # These start empty, but are referenced in my bashrc.
 echo ""
