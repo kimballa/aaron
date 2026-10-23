@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rebase"
+  short_description: "Rebase a feature branch and update its remote copy"
+  default_prompt: "Use $rebase to update my current feature branch from its parent, resolve conflicts, and push its existing remote copy."
