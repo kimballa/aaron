@@ -130,4 +130,12 @@ if [ -z "$CLAUDE" ]; then
   curl -fsSL https://claude.ai/install.sh | bash
 fi
 
+# Install Codex CLI
+echo "Checking for codex..."
+CODEX=$(which codex || true)
+if [ -z "$CODEX" ]; then
+  echo "Installing Codex CLI..."
+  curl -fsSL https://chatgpt.com/codex/install.sh | sh
+fi
+
 echo "Preferred package installation complete!"

@@ -156,5 +156,21 @@ else
   fi
 fi
 
+# Install Codex CLI
+echo "Checking for codex..."
+if [ -z "${SUDO_USER:-}" ]; then
+  CODEX=$(which codex || true)
+  if [ -z "$CODEX" ]; then
+    echo "Installing Codex CLI..."
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh
+  fi
+else
+  CODEX=$(su - "$SUDO_USER" -c "which codex" || true)
+  if [ -z "$CODEX" ]; then
+    echo "Installing Codex CLI..."
+    su - "$SUDO_USER" -c "curl -fsSL https://chatgpt.com/codex/install.sh | sh"
+  fi
+fi
+
 echo "Preferred package installation complete!"
 
