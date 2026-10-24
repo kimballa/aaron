@@ -76,6 +76,19 @@ if [ -z "$GITHUB" ]; then
   brew install gh
 fi
 
+# Install gh-stack, the gh extension for stacked PRs (used by the rebase skill).
+# `gh extension list` is captured before grepping because `grep -q` exits early, which makes
+# `gh` die of SIGPIPE and trips pipefail.
+echo "Checking for gh-stack..."
+GH_STACK_EXTENSIONS=$(gh extension list 2>/dev/null || true)
+if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
+  echo "Installing gh-stack..."
+  # Not fatal: installing an extension can fail (e.g. gh not logged in yet); rerun this script
+  # or `gh extension install github/gh-stack` afterwards.
+  gh extension install github/gh-stack \
+      || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+fi
+
 # Install AWS CLI
 echo "Checking for aws..."
 AWS=$(which aws || true)

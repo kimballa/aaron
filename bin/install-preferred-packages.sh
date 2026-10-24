@@ -78,6 +78,29 @@ if [ -z "$GITHUB" ]; then
       && apt-get install -y --no-install-recommends gh
 fi
 
+# Install gh-stack, the gh extension for stacked PRs (used by the rebase skill).
+# Extensions live in the user's gh config, so like Claude Code this is a per-user install and
+# must run as the sudo'ing user. `gh extension list` is captured before grepping because
+# `grep -q` exits early, which makes `gh` die of SIGPIPE and trips pipefail.
+echo "Checking for gh-stack..."
+if [ -n "${SUDO_USER:-}" ]; then
+  GH_STACK_EXTENSIONS=$(su - "$SUDO_USER" -c "gh extension list" 2>/dev/null || true)
+else
+  GH_STACK_EXTENSIONS=$(gh extension list 2>/dev/null || true)
+fi
+if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
+  echo "Installing gh-stack..."
+  # Not fatal: installing an extension can fail (e.g. gh not logged in yet); rerun this script
+  # or `gh extension install github/gh-stack` afterwards.
+  if [ -n "${SUDO_USER:-}" ]; then
+    su - "$SUDO_USER" -c "gh extension install github/gh-stack" \
+        || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+  else
+    gh extension install github/gh-stack \
+        || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+  fi
+fi
+
 # Install AWS CLI
 echo "Checking for aws..."
 AWS=$(which aws || true)
