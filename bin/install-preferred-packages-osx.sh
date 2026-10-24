@@ -77,16 +77,25 @@ if [ -z "$GITHUB" ]; then
 fi
 
 # Install gh-stack, the gh extension for stacked PRs (used by the rebase skill).
-# `gh extension list` is captured before grepping because `grep -q` exits early, which makes
-# `gh` die of SIGPIPE and trips pipefail.
+# Listings are captured before grepping because `grep -q` exits early, which makes `gh` die of
+# SIGPIPE and trips pipefail. Failures are not fatal (e.g. gh not logged in yet): rerun this
+# script afterwards.
 echo "Checking for gh-stack..."
 GH_STACK_EXTENSIONS=$(gh extension list 2>/dev/null || true)
 if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
   echo "Installing gh-stack..."
-  # Not fatal: installing an extension can fail (e.g. gh not logged in yet); rerun this script
-  # or `gh extension install github/gh-stack` afterwards.
   gh extension install github/gh-stack \
       || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+fi
+
+# Install the gh-stack agent skill for Claude Code (needs gh >= 2.90 for `gh skill`). A
+# non-interactive `gh skill install` fails if the skill already exists, so check first.
+echo "Checking for the gh-stack skill..."
+GH_STACK_SKILLS=$(gh skill list --agent claude-code --scope user --json skillName 2>/dev/null || true)
+if ! grep -Eq '"skillName": *"gh-stack"' <<<"$GH_STACK_SKILLS"; then
+  echo "Installing the gh-stack skill..."
+  gh skill install github/gh-stack gh-stack --agent claude-code --scope user \
+      || echo "WARNING: gh-stack skill install failed; run 'gh skill install github/gh-stack gh-stack --agent claude-code --scope user' later."
 fi
 
 # Install AWS CLI
