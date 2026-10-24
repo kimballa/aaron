@@ -78,6 +78,53 @@ if [ -z "$GITHUB" ]; then
       && apt-get install -y --no-install-recommends gh
 fi
 
+# gh extensions and skills live in the user's home, so like Claude Code they are per-user
+# installs and must run as the sudo'ing user.
+run_as_user() {
+  if [ -n "${SUDO_USER:-}" ]; then
+    su - "$SUDO_USER" -c "$1"
+  else
+    bash -c "$1"
+  fi
+}
+
+# Install gh-stack, the gh extension for stacked PRs (used by the rebase skill).
+# Listings are captured before grepping because `grep -q` exits early, which makes `gh` die of
+# SIGPIPE and trips pipefail. Failures are not fatal (e.g. gh not logged in yet): rerun this
+# script afterwards.
+echo "Checking for gh-stack..."
+GH_STACK_EXTENSIONS=$(run_as_user "gh extension list" 2>/dev/null || true)
+if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
+  echo "Installing gh-stack..."
+  run_as_user "gh extension install github/gh-stack" \
+      || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+fi
+
+# Install the gh-stack agent skill for an agent (needs gh >= 2.90 for `gh skill`). A
+# non-interactive `gh skill install` fails if the skill already exists, so check first.
+install_gh_stack_skill() {
+  local agent="$1" installed
+  echo "Checking for the gh-stack skill ($agent)..."
+  installed=$(run_as_user "gh skill list --agent $agent --scope user --json skillName" \
+      2>/dev/null || true)
+  if ! grep -Eq '"skillName": *"gh-stack"' <<<"$installed"; then
+    echo "Installing the gh-stack skill ($agent)..."
+    run_as_user "gh skill install github/gh-stack gh-stack --agent $agent --scope user" \
+        || echo "WARNING: gh-stack skill install ($agent) failed; run 'gh skill install github/gh-stack gh-stack --agent $agent --scope user' later."
+  fi
+}
+
+install_gh_stack_skill claude-code
+
+# Codex is optional: only install its skills if it is present (on PATH, or it has run before and
+# created ~/.codex).
+echo "Checking for codex..."
+if run_as_user "command -v codex >/dev/null || [ -d \"\$HOME/.codex\" ]"; then
+  install_gh_stack_skill codex
+else
+  echo "codex not found; skipping its skills."
+fi
+
 # Install AWS CLI
 echo "Checking for aws..."
 AWS=$(which aws || true)
@@ -86,14 +133,14 @@ if [ -z "$AWS" ]; then
   ARCH=$(dpkg --print-architecture) \
       && if [ "$ARCH" = "arm64" ]; then AWS_ARCH="aarch64"; else AWS_ARCH="x86_64"; fi \
       && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o /tmp/awscliv2.zip \
-      && unzip /tmp/awscliv2.zip -d /tmp \
-      && /tmp/aws/install \
+      && unzip -q -o /tmp/awscliv2.zip -d /tmp \
+      && /tmp/aws/install --update \
       && rm -rf /tmp/awscliv2.zip /tmp/aws
 fi
 
 # Install Claude Code
 echo "Checking for claude..."
-if [ -z "$SUDO_USER" ]; then
+if [ -z "${SUDO_USER:-}" ]; then
   CLAUDE=$(which claude || true)
   if [ -z "$CLAUDE" ]; then
     echo "Installing Claude Code..."

@@ -57,8 +57,10 @@ brew install \
 set +x
 
 echo "Setting up git lfs"
-/opt/homebrew/bin/git lfs install
-/opt/homebrew/bin/git lfs version
+# Use Homebrew's git (prefix is /opt/homebrew on Apple Silicon, /usr/local on Intel).
+BREW_GIT="$(brew --prefix)/bin/git"
+"$BREW_GIT" lfs install
+"$BREW_GIT" lfs version
 
 # Install nodejs
 echo "Checking for node..."
@@ -74,6 +76,42 @@ GITHUB=$(which gh || true)
 if [ -z "$GITHUB" ]; then
   echo "Installing github..."
   brew install gh
+fi
+
+# Install gh-stack, the gh extension for stacked PRs (used by the rebase skill).
+# Listings are captured before grepping because `grep -q` exits early, which makes `gh` die of
+# SIGPIPE and trips pipefail. Failures are not fatal (e.g. gh not logged in yet): rerun this
+# script afterwards.
+echo "Checking for gh-stack..."
+GH_STACK_EXTENSIONS=$(gh extension list 2>/dev/null || true)
+if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
+  echo "Installing gh-stack..."
+  gh extension install github/gh-stack \
+      || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
+fi
+
+# Install the gh-stack agent skill for an agent (needs gh >= 2.90 for `gh skill`). A
+# non-interactive `gh skill install` fails if the skill already exists, so check first.
+install_gh_stack_skill() {
+  local agent="$1" installed
+  echo "Checking for the gh-stack skill ($agent)..."
+  installed=$(gh skill list --agent "$agent" --scope user --json skillName 2>/dev/null || true)
+  if ! grep -Eq '"skillName": *"gh-stack"' <<<"$installed"; then
+    echo "Installing the gh-stack skill ($agent)..."
+    gh skill install github/gh-stack gh-stack --agent "$agent" --scope user \
+        || echo "WARNING: gh-stack skill install ($agent) failed; run 'gh skill install github/gh-stack gh-stack --agent $agent --scope user' later."
+  fi
+}
+
+install_gh_stack_skill claude-code
+
+# Codex is optional: only install its skills if it is present (on PATH, or it has run before and
+# created ~/.codex).
+echo "Checking for codex..."
+if command -v codex &>/dev/null || [ -d "$HOME/.codex" ]; then
+  install_gh_stack_skill codex
+else
+  echo "codex not found; skipping its skills."
 fi
 
 # Install AWS CLI

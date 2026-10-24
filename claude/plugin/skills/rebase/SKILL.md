@@ -1,6 +1,6 @@
 ---
 name: rebase
-description: Fetch upstream Git changes and rebase the current feature branch onto its parent, including stacked PR branches. Resolve conflicts, verify the result, and update an existing remote feature branch with a normal push or an explicit force-with-lease when required. Use when the user asks to rebase or update a feature branch from its base.
+description: Fetch upstream Git changes and rebase the current feature branch onto its parent, including stacked PR branches. Branches in a GitHub stack are rebased and pushed with `gh stack` so PR approvals are not needlessly dismissed. Resolve conflicts, verify the result, and update an existing remote feature branch with a normal push or an explicit force-with-lease when required. Use when the user asks to rebase or update a feature branch from its base.
 ---
 
 # Rebase a feature branch
@@ -31,7 +31,8 @@ uncommitted work and other people's commits.
    feature branch. Inspect `refs/remotes/<remote>/HEAD`, repository hosting metadata,
    or `git ls-remote --symref <remote> HEAD` to identify the default rather than
    assuming `main`. If multiple plausible parents remain, or a stack is apparent
-   but its parent is unknown, ask the user for the parent before rebasing.
+   but its parent is unknown, ask the user for the parent before rebasing. A branch
+   in a GitHub stack (next section) has a known parent; do not ask.
 4. Separately identify the existing remote copy of this feature branch. Inspect
    `branch.<branch>.remote`, `branch.<branch>.merge`, push remotes/refspecs, and
    hosting metadata. An existing same-name branch on the appropriate remote can
@@ -40,6 +41,103 @@ uncommitted work and other people's commits.
    A tracking target of `main` or `master` is a base, never a feature push target.
    Ask if the intended feature destination is ambiguous. If no published copy
    exists, finish locally without publishing a new remote branch.
+
+## GitHub stacks: use `gh stack`
+
+Rebasing a stacked PR branch by hand and pushing it makes GitHub treat every
+rewritten branch as a plain force-push, which dismisses approvals on repositories
+that dismiss stale reviews. `gh stack push` marks its force-pushes as belonging to a
+stack so GitHub can keep approvals when a rebase leaves a PR's diff unchanged. That
+needs a recent `gh-stack` (the marker was merged after v0.2.1; check
+`gh extension list` and run `gh extension upgrade stack` if the user agrees). So for
+a branch in a stack, do the rebase and the push with `gh stack`, not raw `git`.
+
+`gh stack` rebases locally: there is no server-side rebase through the CLI or API.
+The only server-side rebase is the "Rebase stack" button in the PR merge box, which
+cannot resolve conflicts. Do not try to emulate it.
+
+1. Check that the extension exists with `gh stack --help`. If it does not, fall back
+   to the ordinary workflow in this skill and say that stack-aware rebasing and
+   approval preservation were unavailable.
+2. Detect the stack. Stack metadata is local (`.git/gh-stack`), and the active
+   stack is the one containing the checked-out branch.
+   `gh stack view --json` exits 0 inside a stack, 2 outside one, and 6 when the
+   branch belongs to several stacks (ask the user which). If it exits 2, also look
+   for a stack that exists on GitHub but is not tracked locally: with the current
+   branch's PR number `N`, `gh api "repos/{owner}/{repo}/stacks?pull_request=N"`
+   returns it. If one exists, run `gh stack checkout N` to set it up locally and
+   re-run `gh stack view --json`; stop and ask if that prompts or fails. If there is
+   no stack either way, use the ordinary workflow in this skill.
+3. Do the "Fetch and preserve work" steps below for every branch in the stack, not
+   just the current one: record each branch's fetched remote tip, preserve local
+   changes, and integrate remote-only commits before rebasing. Keep each branch's
+   pre-fetch remote tip (`P_i` below). `gh stack rebase` only fast-forwards local
+   branches that are strictly behind their remote copy, and it updates the worktree
+   that owns each branch only when that worktree is clean; it never stashes. Other
+   agents may be working in other worktrees, so never stash, reset, or switch a
+   worktree this run does not own: list them with `git worktree list` and report
+   the path of any that blocks the rebase.
+4. Check whether the stack was already rebased, by this clone's other worktrees,
+   another clone, or GitHub's "Rebase stack" button, and realign instead of
+   rebasing again. `gh stack` does not do this for you: `gh stack rebase` has no
+   "already up to date" shortcut, it silently skips branches that have diverged
+   from their remote copy, and it rebases the rest again. `gh stack push` would
+   then force a second, differently-hashed copy of already-published work over the
+   first, which is what dismisses approvals. So decide with git first. Fetch the
+   trunk and every stack branch (names from `gh stack view --json`), and let `T` be
+   `<remote>/<trunk>`, `L_i` and `R_i` the local and fetched remote tips of the
+   i-th branch from the bottom. Test linearity with
+   `git merge-base --is-ancestor <parent> <child>`:
+   - **Local stack already linear** (`T` is an ancestor of `L_1`, and each `L_{i-1}`
+     is an ancestor of `L_i`): another worktree of this clone did the rebase. Branch
+     refs are shared by all worktrees and `gh stack` moved the working copy of each
+     clean owning worktree, so there is nothing to realign. Skip to step 7.
+   - **Remote stack already linear but local is not** (same test on the `R_i`): realign
+     each branch whose `L_i` differs from `R_i` and is not an ancestor of `R_i`
+     (an ancestor is a plain fast-forward). Check `git cherry <remote>/<b> <b>`.
+     With no `+` lines, there is no unpublished local work: for the current branch
+     run `git reset --hard <remote>/<b>` (after preserving local changes as above),
+     and for a branch no worktree has checked out run `git branch -f <b> <remote>/<b>`
+     (Git refuses this for a checked-out branch, which belongs to that worktree's
+     owner: leave it and report it). With `+` lines there are unpublished local
+     commits, or copies of published ones whose conflict resolution changed their
+     patch IDs; compare with `git range-diff`, then replay only the unique commits
+     with `git rebase --onto <remote>/<b> P_i <b>` when `P_i` is an ancestor of
+     `L_i`. If it is not, both sides rewrote the branch: ask. Then skip to step 7.
+   - **Remote only partly rebased, or neither side linear:** if the remote is only
+     partly rebased, stop and ask; otherwise continue with step 5.
+5. Run `gh stack rebase` with no scope flags. It fetches `origin`, then rebases each
+   branch onto the tip of the layer below, trunk first. A branch whose PR already
+   merged is replayed with `--onto` automatically, so the manual boundary search in
+   the next section does not apply. Rebase the whole stack: `--downstack` or
+   `--upstack` alone leaves some branches not based on their parent, and GitHub will
+   not merge a stack that is not linear. Use `--remote <name>` if `origin` is not
+   the stack's remote. It does not push. If it refuses because another worktree
+   that owns a stack branch is dirty or busy, do not touch that worktree: confirm
+   with `gh stack view --json` and `git worktree list` that nothing changed (run
+   `gh stack rebase --abort` if a rebase was left pending), report the path, and
+   stop.
+6. On a conflict the command exits 3 and lists the files. Resolve them as described
+   below, `git add` only the resolved files, and run `gh stack rebase --continue`;
+   do not repeat start-only flags. `gh stack rebase --abort` restores every branch
+   to its pre-rebase state. Exit 7 means a rebase is already running.
+7. Verify as described under "Verify, restore local changes, and push". Also confirm
+   that `gh stack view --json` reports no branch with `needsRebase: true`.
+8. Push with `gh stack push`, not `git push`. It pushes every active branch in one
+   command with a per-branch `--force-with-lease` and skips merged and queued
+   branches. Because it pushes every branch, first confirm that each local tip is
+   equal to, a descendant of, or a branch this run just rebased from its fetched
+   remote tip. A branch that has diverged with its own commits, for example in
+   another agent's worktree, would be force-pushed over the remote copy; its lease
+   may be taken after a fetch, so do not rely on the lease to catch it. If any branch
+   fails the check, do not run `gh stack push`: report it and ask. The push is not atomic: if one branch is rejected, the others may have
+   updated. A lease rejection means someone published new work to that branch;
+   handle it as described in the push section, then re-run `gh stack push`. Never
+   fall back to `git push --force` to get past it.
+9. Verify that every branch's remote ref matches its local tip, and report the
+   stack's branches, conflicts resolved, validation, and the pushed result. Say that
+   GitHub's approval retention depends on repository settings and the extension
+   version, and do not claim approvals survived unless the PRs show them.
 
 ## Fetch and preserve work
 
@@ -72,7 +170,7 @@ uncommitted work and other people's commits.
 - For an ordinary branch, rebase onto the fetched parent ref, such as
   `git rebase origin/main`. Preserve intentional merge topology with
   `--rebase-merges` when the branch requires it.
-- For a stack whose parent history was rewritten, first establish the old child
+- For a stack that `gh stack` does not manage and whose parent history was rewritten, first establish the old child
   boundary from pre-fetch history, the parent's reflog/`--fork-point`, stack
   metadata, and commit inspection. Use
   `git rebase --onto <fetched-parent> <old-child-boundary> <current-branch>`
