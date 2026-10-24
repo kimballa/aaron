@@ -129,7 +129,7 @@ cannot resolve conflicts. Do not try to emulate it.
    equal to, a descendant of, or a branch this run just rebased from its fetched
    remote tip. A branch that has diverged with its own commits, for example in
    another agent's worktree, would be force-pushed over the remote copy; its lease
-   is taken after a fetch, so do not rely on the lease to catch it. If any branch
+   may be taken after a fetch, so do not rely on the lease to catch it. If any branch
    fails the check, do not run `gh stack push`: report it and ask. The push is not atomic: if one branch is rejected, the others may have
    updated. A lease rejection means someone published new work to that branch;
    handle it as described in the push section, then re-run `gh stack push`. Never
