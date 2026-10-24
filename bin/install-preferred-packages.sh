@@ -133,14 +133,14 @@ if [ -z "$AWS" ]; then
   ARCH=$(dpkg --print-architecture) \
       && if [ "$ARCH" = "arm64" ]; then AWS_ARCH="aarch64"; else AWS_ARCH="x86_64"; fi \
       && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o /tmp/awscliv2.zip \
-      && unzip /tmp/awscliv2.zip -d /tmp \
-      && /tmp/aws/install \
+      && unzip -q -o /tmp/awscliv2.zip -d /tmp \
+      && /tmp/aws/install --update \
       && rm -rf /tmp/awscliv2.zip /tmp/aws
 fi
 
 # Install Claude Code
 echo "Checking for claude..."
-if [ -z "$SUDO_USER" ]; then
+if [ -z "${SUDO_USER:-}" ]; then
   CLAUDE=$(which claude || true)
   if [ -z "$CLAUDE" ]; then
     echo "Installing Claude Code..."
