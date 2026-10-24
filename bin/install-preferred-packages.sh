@@ -100,15 +100,29 @@ if ! grep -q 'github/gh-stack' <<<"$GH_STACK_EXTENSIONS"; then
       || echo "WARNING: gh-stack install failed; run 'gh extension install github/gh-stack' later."
 fi
 
-# Install the gh-stack agent skill for Claude Code (needs gh >= 2.90 for `gh skill`). A
+# Install the gh-stack agent skill for an agent (needs gh >= 2.90 for `gh skill`). A
 # non-interactive `gh skill install` fails if the skill already exists, so check first.
-echo "Checking for the gh-stack skill..."
-GH_STACK_SKILLS=$(run_as_user "gh skill list --agent claude-code --scope user --json skillName" \
-    2>/dev/null || true)
-if ! grep -Eq '"skillName": *"gh-stack"' <<<"$GH_STACK_SKILLS"; then
-  echo "Installing the gh-stack skill..."
-  run_as_user "gh skill install github/gh-stack gh-stack --agent claude-code --scope user" \
-      || echo "WARNING: gh-stack skill install failed; run 'gh skill install github/gh-stack gh-stack --agent claude-code --scope user' later."
+install_gh_stack_skill() {
+  local agent="$1" installed
+  echo "Checking for the gh-stack skill ($agent)..."
+  installed=$(run_as_user "gh skill list --agent $agent --scope user --json skillName" \
+      2>/dev/null || true)
+  if ! grep -Eq '"skillName": *"gh-stack"' <<<"$installed"; then
+    echo "Installing the gh-stack skill ($agent)..."
+    run_as_user "gh skill install github/gh-stack gh-stack --agent $agent --scope user" \
+        || echo "WARNING: gh-stack skill install ($agent) failed; run 'gh skill install github/gh-stack gh-stack --agent $agent --scope user' later."
+  fi
+}
+
+install_gh_stack_skill claude-code
+
+# Codex is optional: only install its skills if it is present (on PATH, or it has run before and
+# created ~/.codex).
+echo "Checking for codex..."
+if run_as_user "command -v codex >/dev/null || [ -d \"\$HOME/.codex\" ]"; then
+  install_gh_stack_skill codex
+else
+  echo "codex not found; skipping its skills."
 fi
 
 # Install AWS CLI
