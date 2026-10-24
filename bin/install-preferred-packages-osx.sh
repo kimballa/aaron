@@ -57,8 +57,10 @@ brew install \
 set +x
 
 echo "Setting up git lfs"
-/opt/homebrew/bin/git lfs install
-/opt/homebrew/bin/git lfs version
+# Use Homebrew's git (prefix is /opt/homebrew on Apple Silicon, /usr/local on Intel).
+BREW_GIT="$(brew --prefix)/bin/git"
+"$BREW_GIT" lfs install
+"$BREW_GIT" lfs version
 
 # Install nodejs
 echo "Checking for node..."
