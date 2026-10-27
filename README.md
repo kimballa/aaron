@@ -54,6 +54,18 @@ The Arduino skill can be invoked as `$new-arduino-project`.
 
 Machine-specific bashrc elements go in ~/.localbashrc.
 
+Keyboard bindings in `etc/macos/` are installed only on macOS; deployment
+on Linux and WSL leaves `~/.inputrc` unchanged. In `etc/macos/inputrc`,
+Option/Alt+Left/Right and Ctrl+Left/Right move by word in Bash's default
+Emacs editing mode. New shells load them automatically; run
+`bind -f ~/.inputrc` in existing Bash sessions.
+
+On macOS, `etc/macos/DefaultKeyBinding.dict` also configures Home/End for
+line navigation and Ctrl+Home/End for document navigation. Add Shift to
+extend the selection. Relaunch apps after installing; these mappings
+apply to apps that use macOS text key bindings. Editors with their own
+key maps may need separate configuration.
+
 If you have an old installation, run `make upgrade` (or `bin/upgrade-etc`
 directly) to migrate it to the current layout. This repoints any links
 that still point to the deprecated, separate 'vimscripts' repo at the

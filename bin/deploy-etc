@@ -60,6 +60,16 @@ makesafelink "$HOME"/.vind-exclude "$HOME"/.vind-exclude.orig "${etcdir}"/vind-e
 makesafelink "$HOME"/.dircolors "$HOME"/.dircolors.orig "${etcdir}"/dircolors
 makesafelink "$HOME"/.ctags "$HOME"/.ctags.orig "${etcdir}"/ctags
 
+if [ "$(uname -s)" = Darwin ]; then
+  echo ""
+  echo "Installing macOS text editing keys..."
+  makesafelink "$HOME"/.inputrc "$HOME"/.inputrc.orig "${etcdir}"/macos/inputrc
+  mkdir -p "$HOME/Library/KeyBindings"
+  makesafelink "$HOME/Library/KeyBindings/DefaultKeyBinding.dict" \
+    "$HOME/Library/KeyBindings/DefaultKeyBinding.dict.orig" \
+    "${etcdir}/macos/DefaultKeyBinding.dict"
+fi
+
 echo ""
 echo "Installing vim config..."
 makesafelink "$HOME"/.vimrc "$HOME"/.vimrc.orig "${etcdir}"/vimrc
