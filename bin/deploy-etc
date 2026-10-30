@@ -109,6 +109,12 @@ mkdir -p "$HOME/.claude/skills"
 makesafelink "$HOME/.claude/skills/aaron" "$HOME/.claude/skills/aaron.orig" "${claudedir}/plugin"
 makesafelink "$HOME/.claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md.orig" "${claudedir}/CLAUDE.md"
 
+echo ""
+echo "Installing Codex instructions..."
+codexdir=$(cd "${bin}/../codex" && pwd)
+mkdir -p "$HOME/.codex"
+makesafelink "$HOME/.codex/AGENTS.md" "$HOME/.codex/AGENTS.md.orig" "${codexdir}/AGENTS.md"
+
 if command -v codex >/dev/null 2>&1; then
   echo ""
   echo "Installing Codex plugin..."

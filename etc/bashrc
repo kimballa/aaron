@@ -321,9 +321,13 @@ if [ ! -z "$FDFIND" ]; then
   alias fd='fdfind'
 fi
 
+# Silence OSX warning about moving from bash to zsh.
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
 # Any system-specific environment settings go in ~/.localbashrc
 # Added last so it can override anything here.
 # shellcheck disable=SC1091 # only sourced if a machine-specific localbashrc exists.
 if [ -e "$HOME"/.localbashrc ]; then
   source "$HOME"/.localbashrc
 fi
+

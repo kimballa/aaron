@@ -30,6 +30,8 @@ and other config files to point at the files in etc/ and vim/ in this
 directory (after backing up any pre-existing files, of course!). It also
 symlinks claude/plugin/ into ~/.claude/skills/aaron and claude/CLAUDE.md into
 ~/.claude/CLAUDE.md. Other Claude skills and plugins are left untouched.
+Global Codex instructions are symlinked from codex/AGENTS.md into
+~/.codex/AGENTS.md, including when the Codex CLI is not installed.
 It is safe to run repeatedly: existing symlinks are left alone, and any
 symlink that's gone broken (e.g., because this repo moved) is repaired.
 
