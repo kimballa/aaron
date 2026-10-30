@@ -52,6 +52,26 @@ makesafelink() {
   fi
 }
 
+# Install a regular configuration file, preserving a differing existing file.
+# Arguments: destination path, backup path, and source file to copy.
+# Existing symlinks are replaced without changing their targets. If a differing
+# regular file and its backup both exist, leave them intact and return failure.
+makesafecopy() {
+  local original=$1 backup=$2 target=$3 temporary
+  if [ -e "$original" ] && [ ! -L "$original" ] && ! cmp -s "$original" "$target"; then
+    if [ ! -f "$original" ] || [ -e "$backup" ] || [ -L "$backup" ]; then
+      echo "Cannot safely back up $original to $backup. Not changing it." >&2
+      return 1
+    fi
+    mv "$original" "$backup"
+  fi
+  temporary=$(mktemp "${original}.XXXXXX")
+  cp "$target" "$temporary"
+  chmod 644 "$temporary"
+  # Rename replaces the symlink itself; copying directly would follow it.
+  mv -f "$temporary" "$original"
+}
+
 echo "Installing bash config..."
 makesafelink "$HOME"/.bashrc "$HOME"/.localbashrc "${etcdir}"/bashrc
 # Login shells read .bash_profile, not .bashrc; point it at .bashrc.
@@ -65,7 +85,8 @@ if [ "$(uname -s)" = Darwin ]; then
   echo "Installing macOS text editing keys..."
   makesafelink "$HOME"/.inputrc "$HOME"/.inputrc.orig "${etcdir}"/macos/inputrc
   mkdir -p "$HOME/Library/KeyBindings"
-  makesafelink "$HOME/Library/KeyBindings/DefaultKeyBinding.dict" \
+  # Sandboxed apps can read this folder but cannot follow links into the repo.
+  makesafecopy "$HOME/Library/KeyBindings/DefaultKeyBinding.dict" \
     "$HOME/Library/KeyBindings/DefaultKeyBinding.dict.orig" \
     "${etcdir}/macos/DefaultKeyBinding.dict"
 fi

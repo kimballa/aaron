@@ -65,6 +65,9 @@ line navigation and Ctrl+Home/End for document navigation. Add Shift to
 extend the selection. Relaunch apps after installing; these mappings
 apply to apps that use macOS text key bindings. Editors with their own
 key maps may need separate configuration.
+The installer copies this file into `~/Library/KeyBindings/` so sandboxed
+apps such as TextEdit can read it. Run `make install` again after changing
+the bindings in this repository.
 
 If you have an old installation, run `make upgrade` (or `bin/upgrade-etc`
 directly) to migrate it to the current layout. This repoints any links
