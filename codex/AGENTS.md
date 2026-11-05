@@ -20,3 +20,17 @@ the Codex harness or GitHub PRs:
 
 These meanings do not apply to tokens embedded in a larger context, such as a
 `$ dd if=/dev/zero` shell command.
+
+
+## Worktrees, branches, and pull requests
+
+- Unless I say otherwise, for every new chat/task in warp.git, create a dedicated Git worktree with its own local feature branch. When continuing the same task, reuse its existing worktree and branch.
+- If the work does not involve database migrations, it may be fine to use the common Warp postgresql
+  database. If you are implementing a large plan, use a worktree-specific SQL database. If you're
+  only implementing a smaller feature or ad-hoc request of mine, ask me before creating a
+  worktree-specific SQL database. Ideally I can just run `cd ensign/; make dev` from inside the
+  worktree git checkout to test-drive the changes especially for small things.
+- Fetch `origin` before choosing the base. Keep local `main` up to date with `origin/main` using fast-forward updates; never create new commits directly on local `main`.
+- Base a new task on updated `main`/`origin/main`, or on the branch of another in-flight worktree when the task depends on that work. Use the `codex/` prefix for feature branches unless instructed otherwise.
+
+
